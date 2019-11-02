@@ -1,0 +1,16 @@
+ply
+format ascii 1.0
+comment Created by Blender 2.79 (sub 0) - www.blender.org, source file: ''
+element vertex 24
+property float x
+property float y
+property float z
+property float nx
+property float ny
+property float nz
+property uchar red
+property uchar green
+property uchar blue
+element face 6
+property list uchar uint vertex_indices
+end_header
