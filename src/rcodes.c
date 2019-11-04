@@ -19,3 +19,5 @@ ply_err PLY_HEADER_BUFFER_TO_SMALL = "Header buffer to small";
 ply_err PLY_ELEMENT_NAME_ERROR = "Element name error";
 ply_err PLY_PROPERTY_NAME_ERROR = "Property name error";
 ply_err PLY_HEADER_ILLEGAL_NAME = "Header illegal name";
+ply_err PLY_DATA_PARSE_ERROR = "Data parse error";
+ply_err PLY_LIST_SIZE_TO_BIG = "List size to big";

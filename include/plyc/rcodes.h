@@ -26,6 +26,8 @@ extern ply_err PLY_HEADER_BUFFER_TO_SMALL;
 extern ply_err PLY_ELEMENT_NAME_ERROR;
 extern ply_err PLY_PROPERTY_NAME_ERROR;
 extern ply_err PLY_HEADER_ILLEGAL_NAME;
+extern ply_err PLY_DATA_PARSE_ERROR;
+extern ply_err PLY_LIST_SIZE_TO_BIG;
 
 #ifdef __cplusplus
 }

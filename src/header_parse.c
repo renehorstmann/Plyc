@@ -88,7 +88,7 @@ static ply_err parse_property(struct plyproperty *out_property, strviu viu) {
 }
 
 
-ply_err header_parse(plyheader *out_header, const char *header_text) {
+ply_err ply_header_parse(plyheader *out_header, const char *header_text) {
     memset(out_header, 0, sizeof(plyheader));
     
     setlocale(LC_ALL, "C");

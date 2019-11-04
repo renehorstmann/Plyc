@@ -61,9 +61,9 @@ static void push_property(CharArray *array, struct plyproperty *property) {
     CharArray_push(array, '\n');
 }
 
-ply_err header_write_into(char *out_header, int buffer_size, plyheader header) {
+ply_err ply_header_write_into(char *out_header, int buffer_size, plyheader header) {
     char *header_on_heap;
-    ply_err err = header_write_to_heap(&header_on_heap, header);
+    ply_err err = ply_header_write_to_heap(&header_on_heap, header);
     if (err)
         return err;
 
@@ -77,7 +77,7 @@ ply_err header_write_into(char *out_header, int buffer_size, plyheader header) {
     return PLY_SUCCESS;
 }
 
-ply_err header_write_to_heap(char **out_header_on_heap, plyheader header) {
+ply_err ply_header_write_to_heap(char **out_header_on_heap, plyheader header) {
 
     setlocale(LC_ALL, "C");
 

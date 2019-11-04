@@ -36,7 +36,7 @@ int main() {
             return err("failed to load header 1", "");
 
         plyheader header;
-        ret = header_parse(&header, header_text);
+        ret = ply_header_parse(&header, header_text);
         if (ret)
             return err("header test 1 failed", ret);
 
@@ -84,7 +84,7 @@ int main() {
             return err("header test 1 failed, element 1 property type wrong", "");
 
         char *written_header;
-        ret = header_write_to_heap(&written_header, header);
+        ret = ply_header_write_to_heap(&written_header, header);
         if (ret)
             return err("header test 1 failed to write", ret);
         size_t len = strlen(header_text);
@@ -102,7 +102,7 @@ int main() {
             return err("failed to load header 2", "");
 
         plyheader header;
-        ret = header_parse(&header, header_text);
+        ret = ply_header_parse(&header, header_text);
         if (ret)
             return err("header test 2 failed", ret);
 
@@ -165,7 +165,7 @@ int main() {
             return err("header test 2 failed, element 1 property type wrong", "");
 
         char *written_header;
-        ret = header_write_to_heap(&written_header, header);
+        ret = ply_header_write_to_heap(&written_header, header);
         if (ret)
             return err("header test 2 failed to write", ret);
         size_t len = strlen(header_text);
@@ -185,7 +185,7 @@ int main() {
             return err("failed to load header 3", "");
 
         plyheader header;
-        ret = header_parse(&header, header_text);
+        ret = ply_header_parse(&header, header_text);
         if (ret)
             return err("header test 3 failed", ret);
 
@@ -235,7 +235,7 @@ int main() {
             return err("failed to load header 3 res", "");
 
         char *written_header;
-        ret = header_write_to_heap(&written_header, header);
+        ret = ply_header_write_to_heap(&written_header, header);
         if (ret)
             return err("header test 3 failed to write", ret);
         size_t len = strlen(header_text);
@@ -252,7 +252,7 @@ int main() {
         char *header_text = "plx\n....";
 
         plyheader header;
-        ret = header_parse(&header, header_text);
+        ret = ply_header_parse(&header, header_text);
         if (ret != PLY_NOT_A_PLY_FILE)
             return err("header fail test 1 failed", ret);
     }
@@ -262,7 +262,7 @@ int main() {
         char *header_text = "ply\n...\nend_head";
 
         plyheader header;
-        ret = header_parse(&header, header_text);
+        ret = ply_header_parse(&header, header_text);
         if (ret != PLY_HEADER_ENDING_ERROR)
             return err("header fail test 2 failed", ret);
     }
@@ -272,7 +272,7 @@ int main() {
         char *header_text = "ply\nformat UTF8\n...\nend_header";
 
         plyheader header;
-        ret = header_parse(&header, header_text);
+        ret = ply_header_parse(&header, header_text);
         if (ret != PLY_HEADER_FORMAT_ERROR)
             return err("header fail test 3 failed", ret);
     }
@@ -284,7 +284,7 @@ int main() {
             return err("failed to load header fail 4", "");
 
         plyheader header;
-        ret = header_parse(&header, header_text);
+        ret = ply_header_parse(&header, header_text);
         if (ret != PLY_ELEMENT_ERROR)
             return err("header fail test 4 failed", ret);
     }
@@ -296,7 +296,7 @@ int main() {
             return err("failed to load header fail 5", "");
 
         plyheader header;
-        ret = header_parse(&header, header_text);
+        ret = ply_header_parse(&header, header_text);
         if (ret != PLY_PROPERTY_ERROR)
             return err("header fail test 5 failed", ret);
     }
