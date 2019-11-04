@@ -60,7 +60,24 @@ typedef struct {
  * If an error occurs (such that the given file is not a ply file),
  * an ply_err will be set as return value (see rcodes.h).
  */
-ply_err parse_header(plyheader *out_header, const char *header_text);
+ply_err header_parse(plyheader *out_header, const char *header_text);
+
+/**
+ * Writes the header into an allocates string on the heap
+ * If an error occurs,
+ * an ply_err will be set as return value (see rcodes.h).
+ */
+ply_err header_write_to_heap(char **out_header_on_heap, plyheader header);
+
+
+/**
+ * Writes the header into the string buffer out_header
+ * @param buffer_size: The max. size of the buffer/string out_header.
+ * If an error occurs (such that the buffer is to small),
+ * an ply_err will be set as return value (see rcodes.h).
+ */
+ply_err header_write_into(char *out_header, int buffer_size, plyheader header);
+
 
 
 #ifdef __cplusplus

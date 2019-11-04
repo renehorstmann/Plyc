@@ -1,3 +1,5 @@
+#include <locale.h>
+
 #include "plyc/utilc/strviu.h"
 #include "plyc/header.h"
 
@@ -86,8 +88,10 @@ static ply_err parse_property(struct plyproperty *out_property, strviu viu) {
 }
 
 
-ply_err parse_header(plyheader *out_header, const char *header_text) {
+ply_err header_parse(plyheader *out_header, const char *header_text) {
     memset(out_header, 0, sizeof(plyheader));
+    
+    setlocale(LC_ALL, "C");
 
     if(!header_text)
         return PLY_NULLPOINTER_ERROR;

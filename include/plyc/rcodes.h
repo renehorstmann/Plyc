@@ -4,10 +4,15 @@
 extern "C" {
 #endif
 
+
+#define SetErrGoto(err, set, label) { (err) = (set); goto label; }
+
 typedef const char *ply_err;
 
 extern ply_err PLY_SUCCESS;
 extern ply_err PLY_NULLPOINTER_ERROR;
+extern ply_err PLY_ILLEGAL_DATA;
+
 extern ply_err PLY_NOT_A_PLY_FILE;
 extern ply_err PLY_HEADER_ENDING_ERROR;
 extern ply_err PLY_HEADER_FORMAT_ERROR;
@@ -17,6 +22,10 @@ extern ply_err PLY_TOO_MUCH_ELEMENTS;
 extern ply_err PLY_TOO_MUCH_PROPERTIES;
 extern ply_err PLY_ELEMENT_ERROR;
 extern ply_err PLY_PROPERTY_ERROR;
+extern ply_err PLY_HEADER_BUFFER_TO_SMALL;
+extern ply_err PLY_ELEMENT_NAME_ERROR;
+extern ply_err PLY_PROPERTY_NAME_ERROR;
+extern ply_err PLY_HEADER_ILLEGAL_NAME;
 
 #ifdef __cplusplus
 }
