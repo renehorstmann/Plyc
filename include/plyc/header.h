@@ -1,5 +1,5 @@
-#ifndef PLYC_PLYHEADER_H
-#define PLYC_PLYHEADER_H
+#ifndef PLYC_HEADER_H
+#define PLYC_HEADER_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -66,4 +66,4 @@ ply_err parse_header(plyheader *out_header, const char *header_text);
 #ifdef __cplusplus
 }
 #endif
-#endif //PLYC_PLYHEADER_H
+#endif //PLYC_HEADER_H

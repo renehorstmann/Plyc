@@ -1,5 +1,5 @@
 #include "plyc/utilc/strviu.h"
-#include "plyc/plyheader.h"
+#include "plyc/header.h"
 
 static ply_err parse_element(struct plyelement *out_element, strviu viu) {
     memset(out_element, 0, sizeof(struct plyelement));
@@ -20,9 +20,10 @@ static ply_err parse_element(struct plyelement *out_element, strviu viu) {
     sv_cpy(out_element->name, name);
 
     char *end;
-    out_element->num = strtoul(num.begin, &end, 0);
-    if (end == viu.begin || !isspace(*end) || out_element->num <= 0)
+    long long tmp = strtoll(num.begin, &end, 0);
+    if (end == viu.begin || !isspace(*end) || tmp <= 0)
         return PLY_ELEMENT_ERROR;
+    out_element->num = tmp;
 
     return PLY_SUCCESS;
 }

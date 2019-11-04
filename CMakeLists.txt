@@ -9,7 +9,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-long-long -pedantic -Wno-unused-f
 
 add_library(plyc
         src/rcodes.c
-        src/plyheader.c
+        src/header_parse.c
         )
 
 target_include_directories(plyc PUBLIC include)

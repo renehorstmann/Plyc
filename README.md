@@ -16,4 +16,3 @@ IN ACTIVE WORK!
 + functions for default data (xyz, nxnynz, redgreenblue, mesh)
 + bindings
   - Python3 (numpy)
-  - C++?
