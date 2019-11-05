@@ -96,15 +96,16 @@ ply_err ply_header_parse(plyheader *out_header, const char *header_text) {
     if(!header_text)
         return PLY_NULLPOINTER_ERROR;
 
-    strviu viu = ToStrViu(header_text);
-
-    if (!sv_begins_with_cstring(viu, "ply"))
+    if(strncmp(header_text, "ply", 3) != 0)
         return PLY_NOT_A_PLY_FILE;
-    if (!sv_ends_with_cstring(viu, "end_header"))
+    header_text += 3;
+
+    char *header_text_end = strstr(header_text, "end_header");
+    if(!header_text_end)
         return PLY_HEADER_ENDING_ERROR;
 
-    viu.begin += strlen("ply");
-    viu.end -= strlen("end_header");
+    strviu viu = {(char *) header_text, header_text_end};
+
 
     viu = sv_strip(viu, ' ');
 
