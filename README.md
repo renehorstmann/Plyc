@@ -8,8 +8,8 @@ IN ACTIVE WORK!
 ## TODO
 
 + parse header -> done
-+ write header -> in progress
-+ load data
++ write header -> done
++ load data -> in progress
 + write data
   - use strides for properties
 + mesh of quat indices to 2x triangle mesh
