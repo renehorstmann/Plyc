@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 
-#define SetErrGoto(err, set, label) { (err) = (set); goto (label); }
+#define SetErrGoto(err, set, label) { (err) = (set); goto label; }
 
 typedef const char *ply_err;
 
