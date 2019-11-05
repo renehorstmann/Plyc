@@ -29,9 +29,9 @@ size_t ply_element_size(struct plyelement element, enum ply_format format, size_
  * @param max_list_size: maximum list size (list is [listsize, 0, 1, 2, 3, ..., max_list_size-1
  */
 ply_err ply_data_parse_element(ply_byte *restrict out_data,
+                               ply_byte *restrict *ply_data_begin,
                                struct plyelement element,
                                enum ply_format format,
-                               const ply_byte *restrict ply_data_begin,
                                size_t max_list_size);
 
 

@@ -1,5 +1,7 @@
 #include <string.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <locale.h>
 
 #include "plyc/utilc/strviu.h"
 #include "plyc/data.h"
@@ -48,8 +50,8 @@ static size_t list_size(const ply_byte *data, enum ply_type type) {
 
 
 static void parse_type_binary(ply_byte *restrict out_data,
+                              ply_byte *restrict *ply_data,
                               enum ply_type type,
-                              const ply_byte *restrict *ply_data,
                               bool is_little_endian) {
     const ply_byte *data_as_system_endian = *ply_data;
     ply_byte switched[type_size(type)];
@@ -62,8 +64,8 @@ static void parse_type_binary(ply_byte *restrict out_data,
 }
 
 static void parse_type_ascii(ply_byte *restrict out_data,
-                             enum ply_type type,
-                             const ply_byte *restrict *ply_data) {
+                             ply_byte *restrict *ply_data,
+                             enum ply_type type) {
     char *ascii = (char *) *ply_data;
     while (isspace(*ascii))
         ascii++;
@@ -100,40 +102,39 @@ static void parse_type_ascii(ply_byte *restrict out_data,
 }
 
 static void parse_type(ply_byte *restrict out_data,
+                       ply_byte *restrict *ply_data,
                        enum ply_type type,
-                       enum ply_format format,
-                       const ply_byte *restrict *ply_data) {
+                       enum ply_format format) {
     if (format == PLY_FORMAT_ASCII)
-        parse_type_ascii(out_data, type, ply_data);
+        parse_type_ascii(out_data, ply_data, type);
     else if (format == PLY_FORMAT_BINARY_LE)
-        parse_type_binary(out_data, type, ply_data, true);
+        parse_type_binary(out_data, ply_data, type, true);
     else if (format == PLY_FORMAT_BINARY_BE)
-        parse_type_binary(out_data, type, ply_data, false);
+        parse_type_binary(out_data, ply_data, type, false);
     else
         *ply_data = NULL;
 }
 
 static ply_err parse_property(ply_byte *restrict out_data,
+                              ply_byte *restrict *ply_data,
                               struct plyproperty property,
                               enum ply_format format,
-                              const ply_byte *restrict ply_data_begin,
                               size_t max_list_size) {
-    const ply_byte *restrict *ply_data = &ply_data_begin;
 
     if (property.list_type != PLY_TYPE_NONE) {
-        parse_type(out_data, property.list_type, format, ply_data);
+        parse_type(out_data, ply_data, property.list_type, format);
         size_t size = list_size(out_data, property.list_type);
         if (size > max_list_size)
             return PLY_LIST_SIZE_TO_BIG;
         out_data += type_size(property.list_type);
         for (size_t i = 0; i < size; i++) {
-            parse_type(out_data, property.type, format, ply_data);
+            parse_type(out_data, ply_data, property.type, format);
             out_data += type_size(property.type);
         }
         size_t remaining = max_list_size - size;
         memset(out_data, 0, remaining * type_size(property.type));
     } else {
-        parse_type(out_data, type_size(property.type), format, ply_data);
+        parse_type(out_data, ply_data, property.type, format);
     }
 
     if (!(*ply_data))
@@ -146,7 +147,7 @@ static ply_err parse_property(ply_byte *restrict out_data,
 size_t ply_property_size(struct plyproperty property, enum ply_format format, size_t max_list_size) {
     if (property.list_type != PLY_TYPE_NONE)
         return type_size(property.list_type) + max_list_size * type_size(property.type);
-    return property.type;
+    return type_size(property.type);
 }
 
 size_t ply_element_size(struct plyelement element, enum ply_format format, size_t max_list_size) {
@@ -158,18 +159,20 @@ size_t ply_element_size(struct plyelement element, enum ply_format format, size_
 }
 
 ply_err ply_data_parse_element(ply_byte *restrict out_data,
+                               ply_byte *restrict *ply_data,
                                struct plyelement element,
                                enum ply_format format,
-                               const ply_byte *restrict ply_data,
                                size_t max_list_size) {
     if (element.properties_size > PLY_MAX_PROPERTIES)
         return PLY_ILLEGAL_DATA;
 
+    setlocale(LC_ALL, "C");
+
     for (size_t i = 0; i < element.num; i++) {
         for (size_t p = 0; p < element.properties_size; p++) {
-            ply_err err = parse_property(out_data, element.properties[p], format, ply_data, max_list_size);
+            ply_err err = parse_property(out_data, ply_data, element.properties[p], format, max_list_size);
             if(err) return err;
-            ply_data += ply_property_size(element.properties[p], format, max_list_size);
+            out_data += ply_property_size(element.properties[p], format, max_list_size);
         }
     }
 

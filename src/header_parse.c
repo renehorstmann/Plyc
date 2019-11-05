@@ -87,6 +87,17 @@ static ply_err parse_property(struct plyproperty *out_property, strviu viu) {
     return PLY_SUCCESS;
 }
 
+ply_err ply_header_get_end(char **out_header_end, const char *header_text) {
+    *out_header_end = strstr(header_text, "end_header");
+    if(!*out_header_end)
+        return PLY_HEADER_ENDING_ERROR;
+    *out_header_end += strlen("end_header");
+    while(*(*out_header_end)++ != '\n') {
+        if(!**out_header_end)
+            return PLY_HEADER_ENDING_ERROR;
+    }
+    return PLY_SUCCESS;
+}
 
 ply_err ply_header_parse(plyheader *out_header, const char *header_text) {
     memset(out_header, 0, sizeof(plyheader));

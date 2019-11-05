@@ -56,12 +56,19 @@ typedef struct {
     size_t elements_size;
 } plyheader;
 
+
+/** Sets out_header_end to the start of the data (header end) */
+ply_err ply_header_get_end(char **out_header_end, const char *header_text);
+
+
 /**
  * Parses the header, loaded from a ply file to memory.
  * If an error occurs (such that the given file is not a ply file),
  * an ply_err will be set as return value (see rcodes.h).
  */
 ply_err ply_header_parse(plyheader *out_header, const char *header_text);
+
+
 
 /**
  * Writes the header into an allocates string on the heap
