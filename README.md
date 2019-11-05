@@ -9,7 +9,11 @@ IN ACTIVE WORK!
 
 + parse header -> done
 + write header -> done
-+ load data -> in progress
++ load data
+  - load element -> done
+  - load defaults:
+     + point cloud xyz, nxnynz, redgreenblue
+     + mesh indices 
 + write data
   - use strides for properties
 + mesh of quat indices to 2x triangle mesh
