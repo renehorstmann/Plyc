@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 
-#define SetErrGoto(err, set, label) { (err) = (set); goto label; }
+#define SetErrGoto(err, set, label) { (err) = (set); goto (label); }
 
 typedef const char *ply_err;
 
@@ -28,6 +28,7 @@ extern ply_err PLY_PROPERTY_NAME_ERROR;
 extern ply_err PLY_HEADER_ILLEGAL_NAME;
 extern ply_err PLY_DATA_PARSE_ERROR;
 extern ply_err PLY_LIST_SIZE_TO_BIG;
+extern ply_err PLY_NOT_ENOUGH_DATA;
 
 #ifdef __cplusplus
 }

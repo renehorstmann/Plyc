@@ -21,3 +21,4 @@ ply_err PLY_PROPERTY_NAME_ERROR = "Property name error";
 ply_err PLY_HEADER_ILLEGAL_NAME = "Header illegal name";
 ply_err PLY_DATA_PARSE_ERROR = "Data parse error";
 ply_err PLY_LIST_SIZE_TO_BIG = "List size to big";
+ply_err PLY_NOT_ENOUGH_DATA = "Not enough data";

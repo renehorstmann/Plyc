@@ -117,28 +117,35 @@ static void parse_type(ply_byte *restrict out_data,
 
 static ply_err parse_property(ply_byte *restrict out_data,
                               ply_byte *restrict *ply_data,
+                              const ply_byte *ply_data_end,
                               struct plyproperty property,
                               enum ply_format format,
                               size_t max_list_size) {
 
     if (property.list_type != PLY_TYPE_NONE) {
+
         parse_type(out_data, ply_data, property.list_type, format);
         size_t size = list_size(out_data, property.list_type);
-        if (size > max_list_size)
-            return PLY_LIST_SIZE_TO_BIG;
         out_data += type_size(property.list_type);
+
         for (size_t i = 0; i < size; i++) {
             parse_type(out_data, ply_data, property.type, format);
             out_data += type_size(property.type);
         }
+
         size_t remaining = max_list_size - size;
         memset(out_data, 0, remaining * type_size(property.type));
     } else {
         parse_type(out_data, ply_data, property.type, format);
     }
 
-    if (!(*ply_data))
+    // ply_data should never be behind ply_data_end
+    if(*ply_data > ply_data_end)
+        return PLY_NOT_ENOUGH_DATA;
+
+    if (!(*ply_data)) {
         return PLY_DATA_PARSE_ERROR;
+    }
 
     return PLY_SUCCESS;
 }
@@ -159,7 +166,8 @@ size_t ply_element_size(struct plyelement element, enum ply_format format, size_
 }
 
 ply_err ply_data_parse_element(ply_byte *restrict out_data,
-                               ply_byte *restrict *ply_data,
+                               ply_byte *restrict *ply_data_begin,
+                               const ply_byte *ply_data_end,
                                struct plyelement element,
                                enum ply_format format,
                                size_t max_list_size) {
@@ -170,7 +178,7 @@ ply_err ply_data_parse_element(ply_byte *restrict out_data,
 
     for (size_t i = 0; i < element.num; i++) {
         for (size_t p = 0; p < element.properties_size; p++) {
-            ply_err err = parse_property(out_data, ply_data, element.properties[p], format, max_list_size);
+            ply_err err = parse_property(out_data, ply_data_begin, ply_data_end, element.properties[p], format, max_list_size);
             if(err) return err;
             out_data += ply_property_size(element.properties[p], format, max_list_size);
         }

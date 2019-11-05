@@ -13,12 +13,13 @@ static int err(char *msg, const char *ret) {
     return 1;
 }
 
-static char *open_file_as_string(const char *filename) {
+static void open_file_as_string(char **start, char **end, const char *filename) {
     char *text = NULL;
+    long length = 0;
     FILE *file = fopen(filename, "r");
     if (file) {
         fseek(file, 0, SEEK_END);
-        long length = ftell(file);
+        length = ftell(file);
         fseek(file, 0, SEEK_SET);
         text = malloc(length + 1);
         if (text) {
@@ -27,7 +28,8 @@ static char *open_file_as_string(const char *filename) {
         }
         fclose(file);
     }
-    return text;
+    *start = text;
+    *end = text+length;
 }
 
 static bool flt_eq(float a, float b) {
@@ -41,7 +43,9 @@ int main() {
 
     // data test 1
     {
-        char *header_text = open_file_as_string("data_1.txt");
+        char *header_text;
+        char *data_end;
+        open_file_as_string(&header_text, &data_end, "data_1.txt");
         if (!header_text)
             return err("failed to load data 1", "");
 
@@ -60,7 +64,7 @@ int main() {
         };
 
         struct point data[2];
-        ret = ply_data_parse_element((ply_byte *) data, &ply_data, header.elements[0], header.format, 0);
+        ret = ply_data_parse_element((ply_byte *) data, &ply_data, data_end, header.elements[0], header.format, 0);
         if (ret)
             return err("data test 1 failed, parsing data failed", ret);
 
@@ -81,7 +85,9 @@ int main() {
 
     // data test 2
     {
-        char *header_text = open_file_as_string("data_2.txt");
+        char *header_text;
+        char *data_end;
+        open_file_as_string(&header_text, &data_end, "data_2.txt");
         if (!header_text)
             return err("failed to load data 2", "");
 
@@ -101,7 +107,7 @@ int main() {
         };
 
         struct point data[8];
-        ret = ply_data_parse_element((ply_byte *) data, &ply_data, header.elements[0], header.format, 0);
+        ret = ply_data_parse_element((ply_byte *) data, &ply_data, data_end, header.elements[0], header.format, 0);
         if (ret)
             return err("data test 2 failed, parsing data failed", ret);
 
@@ -129,7 +135,7 @@ int main() {
         };
 
         struct list list_data[12];
-        ret = ply_data_parse_element((ply_byte *) list_data, &ply_data, header.elements[1], header.format, 8);
+        ret = ply_data_parse_element((ply_byte *) list_data, &ply_data, data_end, header.elements[1], header.format, 8);
         if (ret)
             return err("data test 2 failed, parsing list_data failed", ret);
 
@@ -156,6 +162,95 @@ int main() {
                     return err("data test 2 failed, wrong expected list_data", "");
             }
         }
+    }
+
+
+
+    // data fail test 3
+    {
+        char *header_text;
+        char *data_end;
+        open_file_as_string(&header_text, &data_end, "data_fail_3.txt");
+        if (!header_text)
+            return err("failed to load data fail 3", "");
+
+        plyheader header;
+        ret = ply_header_parse(&header, header_text);
+        if (ret)
+            return err("data fail test 3 failed, parsing header failed", ret);
+
+        char *ply_data;
+        ret = ply_header_get_end(&ply_data, header_text);
+        if (ret)
+            return err("data fail test 3 failed, wtf (header end not found)", "");
+
+        struct_packed point {
+            float x, y, z;
+        };
+
+        struct point data[2];
+        ret = ply_data_parse_element((ply_byte *) data, &ply_data, data_end, header.elements[0], header.format, 0);
+        if (ret!=PLY_DATA_PARSE_ERROR) // in ascii, the parsing fails
+            return err("data fail test 3 failed, parsing data failed", ret);
+
+    }
+
+
+    // data fail test 2
+    {
+        char *header_text;
+        char *data_end;
+        open_file_as_string(&header_text, &data_end, "data_fail_4.txt");
+        if (!header_text)
+            return err("failed to load data fail 4", "");
+
+        plyheader header;
+        ret = ply_header_parse(&header, header_text);
+        if (ret)
+            return err("data fail test 4 failed, parsing header failed", ret);
+
+
+        char *ply_data;
+        ret = ply_header_get_end(&ply_data, header_text);
+        if (ret)
+            return err("data fail test 4 failed, wtf (header end not found)", "");
+
+        struct_packed point {
+            float x, y, z;
+        };
+
+        struct point data[8];
+        ret = ply_data_parse_element((ply_byte *) data, &ply_data, data_end, header.elements[0], header.format, 0);
+        if (ret)
+            return err("data fail test 4 failed, parsing data failed", ret);
+
+        struct point exp_res[8] = {
+                {0, 10, 10},
+                {0, 10, 0},
+                {0, 0, 10},
+                {0, 0, 0},
+                {10, 0, 10},
+                {10, 10, 0},
+                {10, 10, 10},
+                {10, 0, 0}
+        };
+
+        for(int i=0; i<8; i++) {
+            if(!flt_eq(data[i].x, exp_res[i].x)
+               || !flt_eq(data[i].y, exp_res[i].y)
+               || !flt_eq(data[i].z, exp_res[i].z))
+                return err("data fail test 4 failed, wrong expected result", "");
+        }
+
+        struct_packed list {
+            uint8_t num;
+            int32_t element[8];
+        };
+
+        struct list list_data[12];
+        ret = ply_data_parse_element((ply_byte *) list_data, &ply_data, data_end, header.elements[1], header.format, 8);
+        if (ret != PLY_NOT_ENOUGH_DATA)
+            return err("data fail test 4 failed, parsing list_data failed", ret);
 
     }
 

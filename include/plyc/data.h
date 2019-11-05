@@ -30,6 +30,7 @@ size_t ply_element_size(struct plyelement element, enum ply_format format, size_
  */
 ply_err ply_data_parse_element(ply_byte *restrict out_data,
                                ply_byte *restrict *ply_data_begin,
+                               const ply_byte *ply_data_end,
                                struct plyelement element,
                                enum ply_format format,
                                size_t max_list_size);
