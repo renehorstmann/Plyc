@@ -86,8 +86,6 @@ ply_err ply_header_write_to_heap(char **out_header_on_heap, plyheader header);
  */
 ply_err ply_header_write_into(char *out_header, int buffer_size, plyheader header);
 
-
-
 #ifdef __cplusplus
 }
 #endif

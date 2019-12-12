@@ -47,6 +47,11 @@ static void name ## _push(name *self, type item) { \
     name ## _resize(self, self->size+1); \
     self->array[self->size-1] = item; \
 } \
+static void name ## _push_array(name *self, const type *item_array, size_t n) { \
+    name ## _resize(self, self->size+n); \
+    for(int i=0; i<n; i++)\
+        self->array[self->size-n+i] = item_array[i]; \
+} \
 static type *name ## _append(name *self) { \
     name ## _resize(self, self->size+1); \
     return &self->array[self->size-1]; \

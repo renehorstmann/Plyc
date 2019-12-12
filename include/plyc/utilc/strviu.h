@@ -479,6 +479,22 @@ static bool sv_ends_with_cstring(strviu viu, const char *cmp) {
     return sv_ends_with(viu, ToStrViu(cmp));
 }
 
+/** Sets all characters in the string to lower chars */
+static void sv_tolower(strviu viu) {
+    while(viu.begin < viu.end) {
+        *viu.begin = (char) tolower(*viu.begin);
+        viu.begin++;
+    }
+}
+
+/** Sets all characters in the string to upper chars */
+static void sv_toupper(strviu viu) {
+    while(viu.begin < viu.end) {
+        *viu.begin = (char) toupper(*viu.begin);
+        viu.begin++;
+    }
+}
+
 
 //
 // parsing ascii eat's
