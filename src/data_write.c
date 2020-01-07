@@ -35,24 +35,24 @@ static int type_size(enum ply_type type) {
 }
 
 
-static size_t list_size(const ply_byte *data, enum ply_type type) {
-    if (type == PLY_TYPE_CHAR)
-        return (size_t) (*(int8_t *) data);
-    if (type == PLY_TYPE_UCHAR)
-        return (size_t) (*(uint8_t *) data);
-    if (type == PLY_TYPE_SHORT)
-        return (size_t) (*(int16_t *) data);
-    if (type == PLY_TYPE_USHORT)
-        return (size_t) (*(uint16_t *) data);
-    if (type == PLY_TYPE_INT)
-        return (size_t) (*(int32_t *) data);
-    if (type == PLY_TYPE_UINT)
-        return (size_t) (*(uint32_t *) data);
-    return 0;
-}
+//static size_t list_size(const ply_byte *data, enum ply_type type) {
+//    if (type == PLY_TYPE_CHAR)
+//        return (size_t) (*(int8_t *) data);
+//    if (type == PLY_TYPE_UCHAR)
+//        return (size_t) (*(uint8_t *) data);
+//    if (type == PLY_TYPE_SHORT)
+//        return (size_t) (*(int16_t *) data);
+//    if (type == PLY_TYPE_USHORT)
+//        return (size_t) (*(uint16_t *) data);
+//    if (type == PLY_TYPE_INT)
+//        return (size_t) (*(int32_t *) data);
+//    if (type == PLY_TYPE_UINT)
+//        return (size_t) (*(uint32_t *) data);
+//    return 0;
+//}
 
 
-static void write_type(CharArray *array, enum ply_type type, enum ply_format format, const char *data) {
+static void write_type(CharArray *array, enum ply_type type, enum ply_format format, const ply_byte *data) {
     if (format == PLY_FORMAT_BINARY_LE) {
         CharArray_resize(array, array->size + type_size(type));
         char *buffer = &array->array[array->size - type_size(type)];
@@ -92,7 +92,7 @@ static void write_type(CharArray *array, enum ply_type type, enum ply_format for
 }
 
 static void write_list(CharArray *array, enum ply_type list_type, enum ply_type type, enum ply_format format,
-                       const char *data, size_t n) {
+                       const ply_byte *data, size_t n) {
     char list_size[4];  // max type length for list a list size (int or uint)
     if (list_type == PLY_TYPE_CHAR)
         *((int8_t *) list_size) = (int8_t) n;
@@ -115,4 +115,37 @@ static void write_list(CharArray *array, enum ply_type list_type, enum ply_type 
         write_type(array, type, format, data + type_size(type) * i);
 }
 
-// todo: write element? :/
+ply_err ply_data_write_element_to_heap(char **out_element_on_heap, size_t *out_element_size,
+                                       plyelementdata element, enum ply_format format) {
+    CharArray array = {0};
+    CharArray_set_capacity(&array, element.num * element.properties_size);  // minimal size as start size
+
+    for(size_t i=0; i<element.num; i++) {
+        for(size_t p=0; p<element.properties_size; p++) {
+
+            const ply_byte *data = element.properties_data[p] + element.properties[p].offset;
+            element.properties[p].offset += element.properties[p].stride;
+
+            if(element.properties[p].list_type == PLY_TYPE_NONE) {
+                write_type(&array, element.properties[p].type, format, data);
+            } else {
+                int size = ply_data_to_int(data, element.properties[p].list_type);
+                data += type_size(element.properties[p].list_type);
+                write_list(&array, element.properties[p].list_type, element.properties[p].type, format, data, size);
+            }
+        }
+
+        if(format == PLY_FORMAT_ASCII)
+            CharArray_push(&array, '\n');
+    }
+
+    *out_element_size = array.size;
+
+    if(format == PLY_FORMAT_ASCII)
+        CharArray_push(&array, '\0');
+
+    *out_element_on_heap = array.array;
+
+    return PLY_SUCCESS;
+}
+

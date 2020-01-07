@@ -1,5 +1,5 @@
-#ifndef PLYC_SIMPLE_H
-#define PLYC_SIMPLE_H
+#ifndef PLYC_SIMPLE_LOAD_H
+#define PLYC_SIMPLE_LOAD_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -19,16 +19,21 @@ typedef struct {
     size_t size;
 } ply_SimpleCloud;
 
+
+void ply_SimpleCloud_kill(ply_SimpleCloud *self);
+
+
 typedef struct {
     char comments[PLY_MAX_COMMENTS][PLY_MAX_COMMENT_LENGTH];
     size_t comments_size;
 } ply_comments;
 
-void ply_SimpleCloud_kill(ply_SimpleCloud *self);
-
 ply_err ply_simple_load_cloud(ply_SimpleCloud *out_cloud, ply_comments *out_opt_comments, const char *file_path);
+
+ply_err ply_simple_save_cloud(ply_SimpleCloud cloud, const char *file_path, enum ply_format format,
+                              ply_comments *opt_comments);
 
 #ifdef __cplusplus
 }
 #endif
-#endif //PLYC_SIMPLE_H
+#endif //PLYC_SIMPLE_LOAD_H

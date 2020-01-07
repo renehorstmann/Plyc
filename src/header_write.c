@@ -137,6 +137,7 @@ ply_err ply_header_write_to_heap(char **out_header_on_heap, plyheader header) {
 
 
     push_string(&array, "end_header\n");
+    CharArray_push(&array, '\0');
 
     // move
     *out_header_on_heap = array.array;

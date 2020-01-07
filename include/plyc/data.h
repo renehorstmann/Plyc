@@ -12,8 +12,17 @@ typedef char ply_byte;
 typedef struct {
     int offset;
     int stride;
+    enum ply_type list_type;
     enum ply_type type;
 } plypropertydata;
+
+
+typedef struct {
+    plypropertydata properties[PLY_MAX_PROPERTIES];
+    ply_byte *properties_data[PLY_MAX_PROPERTIES];
+    size_t properties_size;
+    size_t num;
+} plyelementdata;
 
 
 float ply_data_to_float(const ply_byte *data, enum ply_type type);
@@ -48,7 +57,9 @@ ply_err ply_data_parse_element(ply_byte *restrict out_data,
                                enum ply_format format,
                                size_t max_list_size);
 
-ply_err ply_data_write_element_to_heap(char **out_element_on_heap, struct plyelement element, enum ply_format format);
+
+ply_err ply_data_write_element_to_heap(char **out_element_on_heap, size_t *out_element_size,
+                                       plyelementdata element, enum ply_format format);
 
 
 plypropertydata ply_data_get_property(plyheader header, struct plyelement element, const char *property_name,

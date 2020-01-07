@@ -65,6 +65,8 @@ plypropertydata ply_data_get_property(plyheader header, struct plyelement elemen
     plypropertydata res = {0};
 
     res.type = property->type;
+    res.list_type = property->list_type;
+
     for(int i=0; i<property_index; i++)
         res.offset += ply_data_property_size(element.properties[i], max_list_size);
 

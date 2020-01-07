@@ -14,7 +14,8 @@ add_library(plyc
         src/data_get.c
         src/data_parse.c
         src/data_write.c
-        src/simple.c
+        src/simple_load.c
+        src/simple_save.c
         )
 
 target_include_directories(plyc PUBLIC include)

@@ -14,6 +14,7 @@ extern ply_err PLY_NULLPOINTER_ERROR;
 extern ply_err PLY_ILLEGAL_DATA;
 
 extern ply_err PLY_FILE_NOT_FOUND;
+extern ply_err PLY_FILE_WRITE_ERROR;
 extern ply_err PLY_NOT_A_PLY_FILE;
 extern ply_err PLY_HEADER_ENDING_ERROR;
 extern ply_err PLY_HEADER_FORMAT_ERROR;

@@ -90,13 +90,24 @@ ply_err ply_simple_load_cloud(ply_SimpleCloud *out_cloud, ply_comments *out_opt_
     if (!z.stride) SetErrGoto(err, "property z not found", CLEAN_UP)
 
     plypropertydata nx = ply_data_get_property(header, *vertices, "nx", max_list_size);
-    plypropertydata ny = ply_data_get_property(header, *vertices, "y", max_list_size);
-    plypropertydata nz = ply_data_get_property(header, *vertices, "z", max_list_size);
+    plypropertydata ny = ply_data_get_property(header, *vertices, "ny", max_list_size);
+    plypropertydata nz = ply_data_get_property(header, *vertices, "nz", max_list_size);
     plypropertydata curvature = ply_data_get_property(header, *vertices, "curvature", max_list_size);
     plypropertydata red = ply_data_get_property(header, *vertices, "red", max_list_size);
+    if (!red.stride)
+        red = ply_data_get_property(header, *vertices, "r", max_list_size);
+
     plypropertydata green = ply_data_get_property(header, *vertices, "green", max_list_size);
+    if (!green.stride)
+        green = ply_data_get_property(header, *vertices, "g", max_list_size);
+
     plypropertydata blue = ply_data_get_property(header, *vertices, "blue", max_list_size);
+    if (!blue.stride)
+        blue = ply_data_get_property(header, *vertices, "b", max_list_size);
+
     plypropertydata alpha = ply_data_get_property(header, *vertices, "alpha", max_list_size);
+    if (!alpha.stride)
+        alpha = ply_data_get_property(header, *vertices, "a", max_list_size);
 
 
 
@@ -126,7 +137,7 @@ ply_err ply_simple_load_cloud(ply_SimpleCloud *out_cloud, ply_comments *out_opt_
         out_cloud->points[i][3] = 1;
     }
 
-    if(out_cloud->normals) {
+    if (out_cloud->normals) {
         for (int i = 0; i < vertices->num; i++) {
             out_cloud->normals[i][0] = ply_data_to_float(parsed_data + nx.offset + nx.stride * i, nx.type);
             out_cloud->normals[i][1] = ply_data_to_float(parsed_data + ny.offset + ny.stride * i, ny.type);
@@ -135,21 +146,21 @@ ply_err ply_simple_load_cloud(ply_SimpleCloud *out_cloud, ply_comments *out_opt_
         }
     }
 
-    if(out_cloud->colors) {
+    if (out_cloud->colors) {
         for (int i = 0; i < vertices->num; i++) {
             out_cloud->colors[i][0] = ply_data_to_float(parsed_data + red.offset + red.stride * i, red.type);
             out_cloud->colors[i][1] = ply_data_to_float(parsed_data + green.offset + green.stride * i, green.type);
             out_cloud->colors[i][2] = ply_data_to_float(parsed_data + blue.offset + blue.stride * i, blue.type);
             out_cloud->colors[i][3] = 1;
         }
-        if(alpha.stride>0) {
+        if (alpha.stride > 0) {
             for (int i = 0; i < vertices->num; i++)
                 out_cloud->colors[i][3] =
                         ply_data_to_float(parsed_data + alpha.offset + alpha.stride * i, alpha.type);
         }
     }
 
-    if(out_cloud->curvatures) {
+    if (out_cloud->curvatures) {
         for (int i = 0; i < vertices->num; i++)
             out_cloud->curvatures[i] =
                     ply_data_to_float(parsed_data + curvature.offset + curvature.stride * i, curvature.type);
@@ -161,3 +172,5 @@ ply_err ply_simple_load_cloud(ply_SimpleCloud *out_cloud, ply_comments *out_opt_
 
     return err;
 }
+
+

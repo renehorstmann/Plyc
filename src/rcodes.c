@@ -7,6 +7,7 @@ ply_err PLY_NULLPOINTER_ERROR = "Nullpointer error";
 ply_err PLY_ILLEGAL_DATA = "Illegal data";
 
 ply_err PLY_FILE_NOT_FOUND = "File not found";
+ply_err PLY_FILE_WRITE_ERROR = "File write error";
 ply_err PLY_NOT_A_PLY_FILE = "Not a .ply file";
 ply_err PLY_HEADER_ENDING_ERROR = "Header ending error";
 ply_err PLY_HEADER_FORMAT_ERROR = "Header format error";
