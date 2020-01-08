@@ -22,19 +22,6 @@ static void switch_endian(ply_byte *restrict dst, const ply_byte *restrict src, 
 }
 
 
-static int type_size(enum ply_type type) {
-    if (type == PLY_TYPE_CHAR || type == PLY_TYPE_UCHAR)
-        return 1;
-    if (type == PLY_TYPE_SHORT || type == PLY_TYPE_USHORT)
-        return 2;
-    if (type == PLY_TYPE_INT || type == PLY_TYPE_UINT || type == PLY_TYPE_FLOAT)
-        return 4;
-    if (type == PLY_TYPE_DOUBLE)
-        return 8;
-    return 0;
-}
-
-
 //static size_t list_size(const ply_byte *data, enum ply_type type) {
 //    if (type == PLY_TYPE_CHAR)
 //        return (size_t) (*(int8_t *) data);
@@ -54,19 +41,19 @@ static int type_size(enum ply_type type) {
 
 static void write_type(CharArray *array, enum ply_type type, enum ply_format format, const ply_byte *data) {
     if (format == PLY_FORMAT_BINARY_LE) {
-        CharArray_resize(array, array->size + type_size(type));
-        char *buffer = &array->array[array->size - type_size(type)];
+        CharArray_resize(array, array->size + ply_type_size(type));
+        char *buffer = &array->array[array->size - ply_type_size(type)];
         if (system_is_little_endian())
-            memcpy(buffer, data, type_size(type));
+            memcpy(buffer, data, ply_type_size(type));
         else
-            switch_endian(buffer, data, type_size(type));
+            switch_endian(buffer, data, ply_type_size(type));
     } else if (format == PLY_FORMAT_BINARY_BE) {
-        CharArray_resize(array, array->size + type_size(type));
-        char *buffer = &array->array[array->size - type_size(type)];
+        CharArray_resize(array, array->size + ply_type_size(type));
+        char *buffer = &array->array[array->size - ply_type_size(type)];
         if (!system_is_little_endian())
-            memcpy(buffer, data, type_size(type));
+            memcpy(buffer, data, ply_type_size(type));
         else
-            switch_endian(buffer, data, type_size(type));
+            switch_endian(buffer, data, ply_type_size(type));
     } else {
         char buffer[64];
         if (type == PLY_TYPE_CHAR)
@@ -112,7 +99,7 @@ static void write_list(CharArray *array, enum ply_type list_type, enum ply_type 
     write_type(array, list_type, format, list_size);
 
     for (int i = 0; i < n; i++)
-        write_type(array, type, format, data + type_size(type) * i);
+        write_type(array, type, format, data + ply_type_size(type) * i);
 }
 
 ply_err ply_data_write_element_to_heap(char **out_element_on_heap, size_t *out_element_size,
@@ -130,7 +117,7 @@ ply_err ply_data_write_element_to_heap(char **out_element_on_heap, size_t *out_e
                 write_type(&array, element.properties[p].type, format, data);
             } else {
                 int size = ply_data_to_int(data, element.properties[p].list_type);
-                data += type_size(element.properties[p].list_type);
+                data += ply_type_size(element.properties[p].list_type);
                 write_list(&array, element.properties[p].list_type, element.properties[p].type, format, data, size);
             }
         }

@@ -10,17 +10,21 @@ extern "C" {
 
 
 typedef float ply_vec4[4];
+typedef int ply_vec3i[3];
 
 typedef struct {
-    ply_vec4 *points;
-    ply_vec4 *normals;
-    ply_vec4 *colors;
-    float *curvatures;
-    size_t size;
+    ply_vec4 *data;
+    size_t num;
 } ply_SimpleCloud;
 
-
 void ply_SimpleCloud_kill(ply_SimpleCloud *self);
+
+typedef struct {
+    ply_vec3i *indices;
+    size_t num;
+} ply_SimpleMeshIndices;
+
+void ply_SimpleMeshIndices_kill(ply_SimpleMeshIndices *self);
 
 
 typedef struct {
@@ -28,10 +32,20 @@ typedef struct {
     size_t comments_size;
 } ply_comments;
 
-ply_err ply_simple_load_cloud(ply_SimpleCloud *out_cloud, ply_comments *out_opt_comments, const char *file_path);
+ply_err ply_simple_load(ply_SimpleCloud *out_points,
+                        ply_SimpleCloud *out_opt_normals,
+                        ply_SimpleCloud *out_opt_colors,
+                        ply_SimpleMeshIndices *out_opt_indices,
+                        ply_comments *out_opt_comments,
+                        const char *file_path);
 
-ply_err ply_simple_save_cloud(ply_SimpleCloud cloud, const char *file_path, enum ply_format format,
-                              ply_comments *opt_comments);
+ply_err ply_simple_save(ply_SimpleCloud points,
+                        ply_SimpleCloud *opt_normals,
+                        ply_SimpleCloud *opt_colors,
+                        ply_SimpleMeshIndices *opt_indices,
+                        ply_comments *opt_comments,
+                        const char *file_path,
+                        enum ply_format format);
 
 #ifdef __cplusplus
 }

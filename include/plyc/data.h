@@ -25,6 +25,18 @@ typedef struct {
 } plyelementdata;
 
 
+static int ply_type_size(enum ply_type type) {
+    if (type == PLY_TYPE_CHAR || type == PLY_TYPE_UCHAR)
+        return 1;
+    if (type == PLY_TYPE_SHORT || type == PLY_TYPE_USHORT)
+        return 2;
+    if (type == PLY_TYPE_INT || type == PLY_TYPE_UINT || type == PLY_TYPE_FLOAT)
+        return 4;
+    if (type == PLY_TYPE_DOUBLE)
+        return 8;
+    return 0;
+}
+
 float ply_data_to_float(const ply_byte *data, enum ply_type type);
 
 int ply_data_to_int(const ply_byte *data, enum ply_type type);

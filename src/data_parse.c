@@ -19,19 +19,6 @@ static void switch_endian(ply_byte *restrict dst, const ply_byte *restrict src, 
 }
 
 
-static int type_size(enum ply_type type) {
-    if (type == PLY_TYPE_CHAR || type == PLY_TYPE_UCHAR)
-        return 1;
-    if (type == PLY_TYPE_SHORT || type == PLY_TYPE_USHORT)
-        return 2;
-    if (type == PLY_TYPE_INT || type == PLY_TYPE_UINT || type == PLY_TYPE_FLOAT)
-        return 4;
-    if (type == PLY_TYPE_DOUBLE)
-        return 8;
-    return 0;
-}
-
-
 static size_t list_size(const ply_byte *data, enum ply_type type) {
     if (type == PLY_TYPE_CHAR)
         return (size_t) (*(int8_t *) data);
@@ -54,13 +41,13 @@ static void parse_type_binary(ply_byte *restrict out_data,
                               enum ply_type type,
                               bool is_little_endian) {
     const ply_byte *data_as_system_endian = *ply_data;
-    ply_byte switched[type_size(type)];
+    ply_byte switched[ply_type_size(type)];
     if (system_is_little_endian() != is_little_endian) {
-        switch_endian(switched, *ply_data, type_size(type));
+        switch_endian(switched, *ply_data, ply_type_size(type));
         data_as_system_endian = switched;
     }
-    memcpy(out_data, data_as_system_endian, type_size(type));
-    *ply_data += type_size(type);
+    memcpy(out_data, data_as_system_endian, ply_type_size(type));
+    *ply_data += ply_type_size(type);
 }
 
 static void parse_type_ascii(ply_byte *restrict out_data,
@@ -126,15 +113,20 @@ static ply_err parse_property(ply_byte *restrict out_data,
 
         parse_type(out_data, ply_data, property.list_type, format);
         size_t size = list_size(out_data, property.list_type);
-        out_data += type_size(property.list_type);
+        if(size>max_list_size) {
+            fprintf(stderr, "[Plyc] warning: parsing list property got a size of %zu that is above max_list_size (%zu)\n",
+                    size, max_list_size);
+            size = max_list_size;
+        }
+        out_data += ply_type_size(property.list_type);
 
         for (size_t i = 0; i < size; i++) {
             parse_type(out_data, ply_data, property.type, format);
-            out_data += type_size(property.type);
+            out_data += ply_type_size(property.type);
         }
 
         size_t remaining = max_list_size - size;
-        memset(out_data, 0, remaining * type_size(property.type));
+        memset(out_data, 0, remaining * ply_type_size(property.type));
     } else {
         parse_type(out_data, ply_data, property.type, format);
     }
@@ -153,8 +145,8 @@ static ply_err parse_property(ply_byte *restrict out_data,
 
 size_t ply_data_property_size(struct plyproperty property, size_t max_list_size) {
     if (property.list_type != PLY_TYPE_NONE)
-        return type_size(property.list_type) + max_list_size * type_size(property.type);
-    return type_size(property.type);
+        return ply_type_size(property.list_type) + max_list_size * ply_type_size(property.type);
+    return ply_type_size(property.type);
 }
 
 size_t ply_data_element_size(struct plyelement element, size_t max_list_size) {

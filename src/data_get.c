@@ -46,7 +46,6 @@ int ply_data_to_int(const ply_byte *data, enum ply_type type) {
     return 0;
 }
 
-
 plypropertydata ply_data_get_property(plyheader header, struct plyelement element, const char *property_name,
                                       size_t max_list_size) {
     int property_index = 0;
