@@ -25,10 +25,10 @@ target_include_directories(plyc PUBLIC include)
 # Testing
 #
 
-# Enables ctest (after "make", test with "ctest" or "ctest -V")
+# enables ctest (after "make", test with "ctest" or "ctest -V")
 enable_testing()
 
-# Define the executable test
+# define the executable test
 add_executable(main tests/main.c)
 add_executable(test_header tests/header_test.c)
 add_executable(test_data tests/data_test.c)
@@ -46,5 +46,21 @@ add_test(TestHeader test_header)
 add_test(TestData test_data)
 add_test(TestSimple test_simple)
 
+# copy data
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tests/data/
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+
+#
+# Examples
+#
+
+add_executable(helloplyc examples/helloplyc.c)
+
+# link to the library
+target_link_libraries(helloplyc plyc)
+
+
+# copy data
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/examples/data/
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

@@ -1,18 +1,3 @@
-# Plyc
-A simple library to load and save a .ply file with any desired data, written in C.
-
-
-## TODO
-
-+ bindings
-  - Python3 (numpy)
-
-
-## Examples
-
-### Loading a point cloud
-Example [helloplyc.c](examples/helloplyc.c) shows how to load the points of a ply file:
-```c
 #include <stdio.h>
 #include <plyc/simple.h>
 
@@ -40,11 +25,11 @@ int main() {
 
     // have fun with the point cloud
     for(int i=0; i<points.num; i++) {
-        printf("%03d : %5.2f |%5.2f |%5.2f\n", 
-               i, points.data[i][0], points.data[i][1], points.data[i][2]);
+        printf("%03d : %5.2f |%5.2f |%5.2f\n",
+                i, points.data[i][0], points.data[i][1], points.data[i][2]);
     }
     puts(" i  :    x  |   y  |   z");
-    
+
     // will print:
     //000 :  1.10 | 2.20 | 3.30
     //001 :  4.40 | 5.50 | 6.60
@@ -53,4 +38,3 @@ int main() {
     // free the point cloud
     ply_SimpleCloud_kill(&points);
 }
-```
