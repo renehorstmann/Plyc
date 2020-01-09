@@ -124,7 +124,6 @@ ply_err ply_simple_load(ply_SimpleCloud *out_points,
         if (err) goto CLEAN_UP;
     }
 
-
     // parse xyz
     plypropertydata x = ply_data_get_property(header, *vertices, "x", max_list_size);
     if (!x.stride) SetErrGoto(err, "property x not found", CLEAN_UP)
@@ -187,19 +186,23 @@ ply_err ply_simple_load(ply_SimpleCloud *out_points,
         if (!alpha.stride)
             alpha = ply_data_get_property(header, *vertices, "a", max_list_size);
 
+        float scale = 1.0f / 255.0f;
+        if(red.type == PLY_TYPE_FLOAT || red.type == PLY_TYPE_DOUBLE)
+            scale = 1.0f;
+
         if (red.stride > 0 && green.stride > 0 && blue.stride > 0) {
             out_opt_colors->data = TryNew(ply_vec4, vertices->num);
             if (out_opt_colors->data) {
                 out_opt_colors->num = vertices->num;
                 for (int i = 0; i < vertices->num; i++) {
-                    out_opt_colors->data[i][0] =
+                    out_opt_colors->data[i][0] = scale *
                             ply_data_to_float(parsed_vertices_data + red.offset + red.stride * i, red.type);
-                    out_opt_colors->data[i][1] =
+                    out_opt_colors->data[i][1] = scale *
                             ply_data_to_float(parsed_vertices_data + green.offset + green.stride * i, green.type);
-                    out_opt_colors->data[i][2] =
+                    out_opt_colors->data[i][2] = scale *
                             ply_data_to_float(parsed_vertices_data + blue.offset + blue.stride * i, blue.type);
                     if (alpha.stride) {
-                        out_opt_colors->data[i][3] =
+                        out_opt_colors->data[i][3] = scale *
                                 ply_data_to_float(parsed_vertices_data + alpha.offset + alpha.stride * i, alpha.type);
                     } else
                         out_opt_colors->data[i][3] = 1;
@@ -247,6 +250,12 @@ ply_err ply_simple_load(ply_SimpleCloud *out_points,
         // move array
         out_opt_indices->indices = array.array;
         out_opt_indices->num = array.size;
+    }
+
+    // copy comments
+    if(out_opt_comments) {
+        out_opt_comments->comments_size = header.comments_size;
+        memcpy(out_opt_comments->comments, header.comments, sizeof(header.comments));
     }
 
 

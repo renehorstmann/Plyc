@@ -58,7 +58,7 @@ int main() {
         ret = ply_simple_save(points, NULL, NULL, NULL, NULL, "savetest_1.ply", PLY_FORMAT_ASCII);
         if (ret) return err("simple_save 1 failed", ret);
 
-        ply_comments comments;
+        ply_comments comments, comments_load_check;
         comments.comments_size = 1;
         strcpy(comments.comments[0], "testi test");
         ret = ply_simple_save(points, NULL, NULL, NULL, &comments, "savetest_2.ply", PLY_FORMAT_BINARY_BE);
@@ -66,9 +66,9 @@ int main() {
 
         ply_SimpleCloud_kill(&points);
 
-        ret = ply_simple_load(&points, NULL, NULL, NULL, &comments, "savetest_2.ply");
+        ret = ply_simple_load(&points, NULL, NULL, NULL, &comments_load_check, "savetest_2.ply");
         if (ret) return err("simple_load 2 failed", ret);
-        if (comments.comments_size != 1 && strcmp(comments.comments[0], "testi test") != 0)
+        if (comments_load_check.comments_size != 1 && strcmp(comments_load_check.comments[0], "testi test") != 0)
             return err("simple_load 2 failed, wrong comments", "");
         if (points.num != 2)
             return err("simple_load 2 failed, wrong loaded data fields", "");
@@ -76,6 +76,8 @@ int main() {
             return err("simple_load 2 failed, wrong loaded point 1", "");
         if (vec_check(points.data[1], (float[]) {4.4, 5.5, 6.6, 1}, 4, 0.001))
             return err("simple_load 2 failed, wrong loaded point 2", "");
+
+        ply_SimpleCloud_kill(&points);
     }
 
     // mesh
@@ -137,6 +139,132 @@ int main() {
             if (veci_check(indices.indices[i], indices_data[i], 3))
                 return err("simple_load 4 failed, indices wrong", "");
         }
+
+        ply_SimpleCloud_kill(&points);
+        ply_SimpleMeshIndices_kill(&indices);
+    }
+
+
+    // mesh with normals and colors
+    {
+        ply_SimpleCloud points, normals, colors;
+        ply_SimpleMeshIndices indices;
+        ply_comments comments;
+        ret = ply_simple_load(&points, &normals, &colors, &indices, &comments, "data_3.ply");
+        if (ret) return err("simple_load 4 failed", ret);
+        if (comments.comments_size != 1
+            || strcmp(comments.comments[0], "Created by Blender 2.79 (sub 0) - www.blender.org, source file: ''") != 0)
+            return err("simple_load 4 failed, comment wrong", "");
+        if (!points.data || points.num != 24
+            || !normals.data || normals.num != 24
+            || !colors.data || colors.num != 24
+            || !indices.indices || indices.num != 12)
+            return err("simple_load 4 failed, wrong loaded sizes", "");
+
+        float points_data[24][4] = {{1,            1,            -1, 1},
+                                    {1,            -1,           -1, 1},
+                                    {-1,           -1,           -1, 1},
+                                    {-1,           1,            -1, 1},
+                                    {1,            0.999998987f, 1,  1},
+                                    {-1,           1,            1,  1},
+                                    {-1,           -1,           1,  1},
+                                    {0.999998987f, -1.00000095f, 1,  1},
+                                    {1,            1,            -1, 1},
+                                    {1,            0.999998987f, 1,  1},
+                                    {0.999998987f, -1.00000095f, 1,  1},
+                                    {1,            -1,           -1, 1},
+                                    {1,            -1,           -1, 1},
+                                    {0.999998987f, -1.00000095f, 1,  1},
+                                    {-1,           -1,           1,  1},
+                                    {-1,           -1,           -1, 1},
+                                    {-1,           -1,           -1, 1},
+                                    {-1,           -1,           1,  1},
+                                    {-1,           1,            1,  1},
+                                    {-1,           1,            -1, 1},
+                                    {1,            0.999998987f, 1,  1},
+                                    {1,            1,            -1, 1},
+                                    {-1,           1,            -1, 1},
+                                    {-1,           1,            1,  1}};
+
+        float normals_data[24][4] = {{0,  0,  -1, 0},
+                                     {0,  0,  -1, 0},
+                                     {0,  0,  -1, 0},
+                                     {0,  0,  -1, 0},
+                                     {0,  -0, 1,  0},
+                                     {0,  -0, 1,  0},
+                                     {0,  -0, 1,  0},
+                                     {0,  -0, 1,  0},
+                                     {1,  -0, 0,  0},
+                                     {1,  -0, 0,  0},
+                                     {1,  -0, 0,  0},
+                                     {1,  -0, 0,  0},
+                                     {-0, -1, -0, 0},
+                                     {-0, -1, -0, 0},
+                                     {-0, -1, -0, 0},
+                                     {-0, -1, -0, 0},
+                                     {-1, 0,  -0, 0},
+                                     {-1, 0,  -0, 0},
+                                     {-1, 0,  -0, 0},
+                                     {-1, 0,  -0, 0},
+                                     {0,  1,  0,  0},
+                                     {0,  1,  0,  0},
+                                     {0,  1,  0,  0},
+                                     {0,  1,  0,  0}};
+
+        float colors_data[24][4] = {{1,             1,             1,            1},
+                                    {1,             1,             1,            1},
+                                    {1,             1,             1,            1},
+                                    {1,             0.0941176564f, 0.831372619f, 1},
+                                    {1,             1,             1,            1},
+                                    {1,             0.890196145f,  0.152941182f, 1},
+                                    {0,             1,             0.10980393f,  1},
+                                    {0.0235294141f, 0.337254912f,  1,            1},
+                                    {0.600000024f,  1,             0.788235366f, 1},
+                                    {1,             0.0431372561f, 0.305882365f, 1},
+                                    {0.0235294141f, 0.337254912f,  1,            1},
+                                    {1,             1,             1,            1},
+                                    {1,             1,             1,            1},
+                                    {0.0235294141f, 0.337254912f,  1,            1},
+                                    {1,             1,             1,            1},
+                                    {1,             1,             1,            1},
+                                    {1,             1,             1,            1},
+                                    {0,             1,             0.10980393f,  1},
+                                    {1,             0.890196145f,  0.152941182f, 1},
+                                    {1,             0.0941176564f, 0.831372619f, 1},
+                                    {1,             0.0431372561f, 0.305882365f, 1},
+                                    {0.600000024f,  1,             0.788235366f, 1},
+                                    {1,             0.0941176564f, 0.831372619f, 1},
+                                    {1,             0.890196145f,  0.152941182f, 1}};
+
+        int indices_data[12][3] = {{0,  1,  2},
+                                   {0,  2,  3},
+                                   {4,  5,  6},
+                                   {4,  6,  7},
+                                   {8,  9,  10},
+                                   {8,  10, 11},
+                                   {12, 13, 14},
+                                   {12, 14, 15},
+                                   {16, 17, 18},
+                                   {16, 18, 19},
+                                   {20, 21, 22},
+                                   {20, 22, 23}};
+
+
+        for (int i = 0; i < 24; i++) {
+            if (vec_check(points.data[i], points_data[i], 4, 0.01f))
+                return err("simple_load 4 failed, points wrong", "");
+            if (vec_check(normals.data[i], normals_data[i], 4, 0.01f))
+                return err("simple_load 4 failed, normals wrong", "");
+            if (vec_check(colors.data[i], colors_data[i], 4, 0.01f))
+                return err("simple_load 4 failed, colors wrong", "");
+        }
+        for (int i = 0; i < 12; i++) {
+            if (veci_check(indices.indices[i], indices_data[i], 3))
+                return err("simple_load 4 failed, indices wrong", "");
+        }
+
+        ret = ply_simple_save(points, &normals, &colors, &indices, NULL, "savetest_4.ply", PLY_FORMAT_ASCII);
+        if (ret) return err("simple_save 4 failed", ret);
     }
 
 }
