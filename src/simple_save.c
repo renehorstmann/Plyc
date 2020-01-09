@@ -18,10 +18,10 @@ static void add_vertex_property(plyheader *header, const char *name) {
 
 static void append_indices_element(plyheader *header, ply_SimpleMeshIndices indices) {
     header->elements_size++;
-    strcpy(header->elements[1].name, "faces");
+    strcpy(header->elements[1].name, "face"); // naming important (e. g. meshlab)
     header->elements[1].num = indices.num;
     header->elements[1].properties_size = 1;
-    strcpy(header->elements[1].properties[0].name, "index");
+    strcpy(header->elements[1].properties[0].name, "vertex_index"); // naming important (e. g. meshlab)
     header->elements[1].properties[0].list_type = PLY_TYPE_UCHAR;
     header->elements[1].properties[0].type = PLY_TYPE_INT;
 }
@@ -36,7 +36,7 @@ static plyheader create_minimal_header(ply_SimpleCloud points, enum ply_format f
         header.comments_size = 0;
     header.elements_size = 1;
     struct plyelement *element = &header.elements[0];
-    strcpy(element->name, "vertices");
+    strcpy(element->name, "vertex"); // naming important (e. g. meshlab)
     element->num = points.num;
     element->properties_size = 0;
 
@@ -83,8 +83,8 @@ static ply_err write_indices_to_heap(ply_byte **out_data_on_heap, size_t *out_el
     char buffer[buffer_size];
     for(int i=0; i<indices.num; i++) {
         char *it = buffer + elementdata.properties[0].stride * i;
-        uint8_t *list_size = it;
-        int32_t *data = it + sizeof(uint8_t);
+        uint8_t *list_size = (uint8_t *) it;
+        int32_t *data = (int32_t *) (it + sizeof(uint8_t));
 
         *list_size = 3;
         data[0] = indices.indices[i][0];

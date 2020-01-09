@@ -45,7 +45,7 @@ int main() {
     {
         char *header_text;
         char *data_end;
-        open_file_as_string(&header_text, &data_end, "data_1.txt");
+        open_file_as_string(&header_text, &data_end, "data_1.ply");
         if (!header_text)
             return err("failed to load data 1", "");
 
@@ -90,7 +90,7 @@ int main() {
     {
         char *header_text;
         char *data_end;
-        open_file_as_string(&header_text, &data_end, "data_2.txt");
+        open_file_as_string(&header_text, &data_end, "data_2.ply");
         if (!header_text)
             return err("failed to load data 2", "");
 
@@ -179,7 +179,7 @@ int main() {
     {
         char *header_text;
         char *data_end;
-        open_file_as_string(&header_text, &data_end, "data_fail_3.txt");
+        open_file_as_string(&header_text, &data_end, "data_fail_3.ply");
         if (!header_text)
             return err("failed to load data fail 3", "");
 
@@ -212,7 +212,7 @@ int main() {
     {
         char *header_text;
         char *data_end;
-        open_file_as_string(&header_text, &data_end, "data_fail_4.txt");
+        open_file_as_string(&header_text, &data_end, "data_fail_4.ply");
         if (!header_text)
             return err("failed to load data fail 4", "");
 

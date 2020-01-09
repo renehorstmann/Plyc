@@ -101,7 +101,7 @@ ply_err ply_simple_load(ply_SimpleCloud *out_points,
 
         if (header.elements_size == 2) {
             if (header.elements[1].properties_size != 1
-                || header.elements[1].properties[0].list_type != PLY_TYPE_NONE) {
+                || header.elements[1].properties[0].list_type == PLY_TYPE_NONE) {
                 SetErrGoto(err, "Indices element expected, should be second with a list property", CLEAN_UP)
             }
             indices = &header.elements[1];
@@ -243,6 +243,10 @@ ply_err ply_simple_load(ply_SimpleCloud *out_points,
                 (*face_b)[2] = ply_data_to_int(list_data, faces.type);
             }
         }
+
+        // move array
+        out_opt_indices->indices = array.array;
+        out_opt_indices->num = array.size;
     }
 
 
