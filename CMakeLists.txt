@@ -52,19 +52,10 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tests/data/
 
 
 #
-# Examples
+# install:
 #
-
-add_executable(helloplyc examples/helloplyc.c)
-add_executable(easysave examples/easysave.c)
-add_executable(mesh examples/mesh.c)
-
-# link to the library
-target_link_libraries(helloplyc plyc)
-target_link_libraries(easysave plyc)
-target_link_libraries(mesh plyc)
-
-
-# copy data
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/examples/data/
-        DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+install(TARGETS plyc
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        )
+install(DIRECTORY include/ DESTINATION include)

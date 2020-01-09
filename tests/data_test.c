@@ -64,7 +64,7 @@ int main() {
         };
 
         struct point data[2];
-        if(sizeof(data) != ply_data_element_size(header.elements[0], header.format, 0))
+        if(sizeof(data) != ply_data_element_size(header.elements[0], 0))
             return err("data test 1 failed, needed element_size is wrong", "");
 
         ret = ply_data_parse_element((ply_byte *) data, &ply_data, data_end, header.elements[0], header.format, 0);
@@ -110,7 +110,7 @@ int main() {
         };
 
         struct point data[8];
-        if(sizeof(data) != ply_data_element_size(header.elements[0], header.format, 0))
+        if(sizeof(data) != ply_data_element_size(header.elements[0], 0))
             return err("data test 2 failed, needed element_size is wrong", "");
 
         ret = ply_data_parse_element((ply_byte *) data, &ply_data, data_end, header.elements[0], header.format, 0);
@@ -141,7 +141,7 @@ int main() {
         };
 
         struct list list_data[12];
-        if(sizeof(list_data) != ply_data_element_size(header.elements[1], header.format, 8))
+        if(sizeof(list_data) != ply_data_element_size(header.elements[1], 8))
             return err("data test 2 failed, needed element_size for list is wrong", "");
 
         ret = ply_data_parse_element((ply_byte *) list_data, &ply_data, data_end, header.elements[1], header.format, 8);
@@ -198,7 +198,7 @@ int main() {
         };
 
         struct point data[2];
-        if(sizeof(data) != ply_data_element_size(header.elements[0], header.format, 0))
+        if(sizeof(data) != ply_data_element_size(header.elements[0], 0))
             return err("data fail test 3 failed, needed element_size is wrong", "");
 
         ret = ply_data_parse_element((ply_byte *) data, &ply_data, data_end, header.elements[0], header.format, 0);
@@ -232,7 +232,7 @@ int main() {
         };
 
         struct point data[8];
-        if(sizeof(data) != ply_data_element_size(header.elements[0], header.format, 0))
+        if(sizeof(data) != ply_data_element_size(header.elements[0], 0))
             return err("data fail test 4 failed, needed element_size is wrong", "");
 
         ret = ply_data_parse_element((ply_byte *) data, &ply_data, data_end, header.elements[0], header.format, 0);
@@ -263,7 +263,7 @@ int main() {
         };
 
         struct list list_data[12];
-        if(sizeof(list_data) != ply_data_element_size(header.elements[1], header.format, 8))
+        if(sizeof(list_data) != ply_data_element_size(header.elements[1], 8))
             return err("data fail test 4 failed, needed element_size for list is wrong", "");
 
         ret = ply_data_parse_element((ply_byte *) list_data, &ply_data, data_end, header.elements[1], header.format, 8);
