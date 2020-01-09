@@ -56,9 +56,11 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tests/data/
 #
 
 add_executable(helloplyc examples/helloplyc.c)
+add_executable(easysave examples/easysave.c)
 
 # link to the library
 target_link_libraries(helloplyc plyc)
+target_link_libraries(easysave plyc)
 
 
 # copy data
