@@ -7,6 +7,7 @@ set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -march=native)  # march=native for best perfo
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-long-long -pedantic -Wno-unused-function -Wno-missing-braces")
 
 # find plyc libs as PLYC_LIB
+# (plyc should be compiled and installed, so that CMake can find and link to it)
 find_library(PLYC_LIB plyc)
 
 # add example executables
