@@ -106,8 +106,9 @@ int main() {
 }
 ```
 
-### Mesh
+### Loading a mesh
 Example [mesh.c](examples/mesh.c) shows how to load a mesh ply file:
+A mesh consists of a point cloud and mesh indices, which describe a triangle by 3 indices for the point cloud.
 ```c
 #include <stdio.h>
 #include <plyc/simple.h>
