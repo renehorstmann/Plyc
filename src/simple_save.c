@@ -121,7 +121,7 @@ ply_err ply_simple_save(ply_SimpleCloud points,
             return "Indices are not valid";
     }
 
-    ply_err err = PLY_SUCCESS;
+    ply_err err = PLY_Success;
 
     char *header_text = NULL;
     char *vertices_data_text = NULL;
@@ -167,7 +167,7 @@ ply_err ply_simple_save(ply_SimpleCloud points,
     }
 
     file = fopen(file_path, "wb");
-    if (!file) SetErrGoto(err, PLY_FILE_NOT_FOUND, CLEAN_UP)
+    if (!file) SetErrGoto(err, "Could not open file for writing", CLEAN_UP)
 
     fwrite(header_text, strlen(header_text), 1, file);
     fwrite(vertices_data_text, vertices_data_size, 1, file);
@@ -179,7 +179,7 @@ ply_err ply_simple_save(ply_SimpleCloud points,
     free(vertices_data_text);
     free(indices_data_text);
     if (file && fclose(file) != 0)
-        return PLY_FILE_WRITE_ERROR;
+        return "File write error";
 
     return err;
 }

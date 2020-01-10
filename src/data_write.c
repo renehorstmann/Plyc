@@ -106,6 +106,8 @@ ply_err ply_data_write_element_to_heap(char **out_element_on_heap, size_t *out_e
                                        plyelementdata element, enum ply_format format) {
     CharArray array = {0};
     CharArray_set_capacity(&array, element.num * element.properties_size);  // minimal size as start size
+    if(!array.array)
+        return "Allocation error";
 
     for(size_t i=0; i<element.num; i++) {
         for(size_t p=0; p<element.properties_size; p++) {
@@ -133,6 +135,6 @@ ply_err ply_data_write_element_to_heap(char **out_element_on_heap, size_t *out_e
 
     *out_element_on_heap = array.array;
 
-    return PLY_SUCCESS;
+    return PLY_Success;
 }
 

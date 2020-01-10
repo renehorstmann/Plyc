@@ -15,19 +15,19 @@ static ply_err parse_element(struct plyelement *out_element, strviu viu) {
     viu.begin = num.end + 1;
     viu = sv_lstrip(viu, ' ');
     if (!sv_empty(viu) || sv_empty(name) || sv_empty(num))
-        return PLY_ELEMENT_ERROR;
+        return "Element error, should only consist of name and num";
 
     if (sv_length(name) >= PLY_MAX_NAME_LENGTH - 1)
-        return PLY_ELEMENT_ERROR;
+        return "Element error, name is to large";
     sv_cpy(out_element->name, name);
 
     char *end;
     long long tmp = strtoll(num.begin, &end, 0);
     if (end == viu.begin || !isspace(*end) || tmp <= 0)
-        return PLY_ELEMENT_ERROR;
+        return "Element error, could not parse num";
     out_element->num = tmp;
 
-    return PLY_SUCCESS;
+    return PLY_Success;
 }
 
 static enum ply_type parse_type(strviu viu) {
@@ -62,7 +62,7 @@ static ply_err parse_property(struct plyproperty *out_property, strviu viu) {
         viu = sv_lstrip(viu, ' ');
         out_property->list_type = parse_type(list_type);
         if (out_property->list_type == PLY_TYPE_NONE)
-            return PLY_PROPERTY_ERROR;
+            return "Property error, could not parse list type";
     }
 
     strviu type, name;
@@ -74,29 +74,29 @@ static ply_err parse_property(struct plyproperty *out_property, strviu viu) {
     viu = sv_lstrip(viu, ' ');
 
     if (!sv_empty(viu) || sv_empty(name))
-        return PLY_PROPERTY_ERROR;
+        return "Property error, should only consist of a name";
 
     out_property->type = parse_type(type);
     if (out_property->type == PLY_TYPE_NONE)
-        return PLY_PROPERTY_ERROR;
+        return "Property error, could not parse type";
 
     if (sv_length(name) >= PLY_MAX_NAME_LENGTH - 1)
-        return PLY_PROPERTY_ERROR;
+        return "Property error, name is to large";
     sv_cpy(out_property->name, name);
 
-    return PLY_SUCCESS;
+    return PLY_Success;
 }
 
 ply_err ply_header_get_end(char **out_header_end, const char *header_text) {
     *out_header_end = strstr(header_text, "end_header");
     if(!*out_header_end)
-        return PLY_HEADER_ENDING_ERROR;
+        return "Could not find end_header";
     *out_header_end += strlen("end_header");
     while(*(*out_header_end)++ != '\n') {
         if(!**out_header_end)
-            return PLY_HEADER_ENDING_ERROR;
+            return "File ends behind end_header";
     }
-    return PLY_SUCCESS;
+    return PLY_Success;
 }
 
 ply_err ply_header_parse(plyheader *out_header, const char *header_text) {
@@ -104,16 +104,13 @@ ply_err ply_header_parse(plyheader *out_header, const char *header_text) {
     
     setlocale(LC_ALL, "C");
 
-    if(!header_text)
-        return PLY_NULLPOINTER_ERROR;
-
     if(strncmp(header_text, "ply", 3) != 0)
-        return PLY_NOT_A_PLY_FILE;
+        return "Not a ply file";
     header_text += 3;
 
     char *header_text_end = strstr(header_text, "end_header");
     if(!header_text_end)
-        return PLY_HEADER_ENDING_ERROR;
+        return "Could not find end_header";
 
     strviu viu = {(char *) header_text, header_text_end};
 
@@ -127,7 +124,7 @@ ply_err ply_header_parse(plyheader *out_header, const char *header_text) {
     else if (sv_begins_with_cstring(viu, "format binary_big_endian 1.0"))
         out_header->format = PLY_FORMAT_BINARY_BE;
     else
-        return PLY_HEADER_FORMAT_ERROR;
+        return "Error parsing format";
 
     viu = sv_eat_until(viu, '\n');
     viu = sv_lstrip(viu, ' ');
@@ -158,7 +155,7 @@ ply_err ply_header_parse(plyheader *out_header, const char *header_text) {
 
         if (sv_begins_with_cstring(line, "element ")) {
             if (out_header->elements_size >= PLY_MAX_ELEMENTS)
-                return PLY_TOO_MUCH_ELEMENTS;
+                return "Element error, too many elements";
             line.begin += strlen("element ");
             line = sv_lstrip(line, ' ');
             actual_element = &out_header->elements[out_header->elements_size++];
@@ -171,9 +168,9 @@ ply_err ply_header_parse(plyheader *out_header, const char *header_text) {
 
         if (sv_begins_with_cstring(line, "property ")) {
             if (!actual_element)
-                return PLY_PROPERTY_BEFORE_ELEMENT;
+                return "A property was parsed without an element";
             if (actual_element->properties_size >= PLY_MAX_PROPERTIES)
-                return PLY_TOO_MUCH_PROPERTIES;
+                return "Property error, too many properties";
             line.begin += strlen("property ");
             line = sv_lstrip(line, ' ');
             struct plyproperty *actual_property = &actual_element->properties[actual_element->properties_size++];
@@ -184,11 +181,11 @@ ply_err ply_header_parse(plyheader *out_header, const char *header_text) {
             continue;
         }
 
-        return PLY_HEADER_UNKNOWN_ITEM;
+        return "Unknown item in header";
     }
 
 
-    return PLY_SUCCESS;
+    return PLY_Success;
 }
 
 

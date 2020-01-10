@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-
+// todo: easy way to get data names, strides, etc...
 
 
 #ifdef __cplusplus

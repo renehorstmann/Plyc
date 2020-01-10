@@ -15,7 +15,6 @@ static void push_string(CharArray *array, const char *string) {
 }
 
 
-
 static void push_element(CharArray *array, struct plyelement *element) {
     push_string(array, "element ");
     push_string(array, element->name);
@@ -27,21 +26,21 @@ static void push_element(CharArray *array, struct plyelement *element) {
 }
 
 static void push_type(CharArray *array, enum ply_type type) {
-    if(type == PLY_TYPE_CHAR)
+    if (type == PLY_TYPE_CHAR)
         push_string(array, "char");
-    else if(type == PLY_TYPE_UCHAR)
+    else if (type == PLY_TYPE_UCHAR)
         push_string(array, "uchar");
-    else if(type == PLY_TYPE_SHORT)
+    else if (type == PLY_TYPE_SHORT)
         push_string(array, "short");
-    else if(type == PLY_TYPE_USHORT)
+    else if (type == PLY_TYPE_USHORT)
         push_string(array, "ushort");
-    else if(type == PLY_TYPE_INT)
+    else if (type == PLY_TYPE_INT)
         push_string(array, "int");
-    else if(type == PLY_TYPE_UINT)
+    else if (type == PLY_TYPE_UINT)
         push_string(array, "uint");
-    else if(type == PLY_TYPE_FLOAT)
+    else if (type == PLY_TYPE_FLOAT)
         push_string(array, "float");
-    else if(type == PLY_TYPE_DOUBLE)
+    else if (type == PLY_TYPE_DOUBLE)
         push_string(array, "double");
 }
 
@@ -49,7 +48,7 @@ static void push_property(CharArray *array, struct plyproperty *property) {
 
     push_string(array, "property ");
 
-    if(property->list_type != PLY_TYPE_NONE) {
+    if (property->list_type != PLY_TYPE_NONE) {
         push_string(array, "list ");
         push_type(array, property->list_type);
         CharArray_push(array, ' ');
@@ -70,18 +69,18 @@ ply_err ply_header_write_into(char *out_header, int buffer_size, plyheader heade
     size_t len = strlen(header_on_heap);
     if (len >= buffer_size) {
         free(header_on_heap);
-        return PLY_HEADER_BUFFER_TO_SMALL;
+        return "Header buffer is to small";
     }
     strcpy(out_header, header_on_heap);
     free(header_on_heap);
-    return PLY_SUCCESS;
+    return PLY_Success;
 }
 
 ply_err ply_header_write_to_heap(char **out_header_on_heap, plyheader header) {
 
     setlocale(LC_ALL, "C");
 
-    ply_err err = PLY_SUCCESS;
+    ply_err err = PLY_Success;
 
     CharArray array = {0};
     CharArray_set_capacity(&array, 128);
@@ -94,42 +93,44 @@ ply_err ply_header_write_to_heap(char **out_header_on_heap, plyheader header) {
         push_string(&array, "format binary_little_endian 1.0\n");
     else if (header.format == PLY_FORMAT_BINARY_BE)
         push_string(&array, "format binary_big_endian 1.0\n");
-    else SetErrGoto(err, PLY_HEADER_FORMAT_ERROR, CLEAN_UP)
+    else SetErrGoto(err, "Format error", CLEAN_UP)
 
 
-    if (header.comments_size > PLY_MAX_COMMENT_LENGTH) SetErrGoto(err, PLY_ILLEGAL_DATA, CLEAN_UP)
+    if (header.comments_size > PLY_MAX_COMMENT_LENGTH) SetErrGoto(err, "Comments error, too many comments", CLEAN_UP)
     for (size_t i = 0; i < header.comments_size; i++) {
         push_string(&array, "comment ");
         push_string(&array, header.comments[i]);
         CharArray_push(&array, '\n');
     }
 
-    if (header.elements_size > PLY_MAX_ELEMENTS) SetErrGoto(err, PLY_ILLEGAL_DATA, CLEAN_UP)
+    if (header.elements_size > PLY_MAX_ELEMENTS) SetErrGoto(err, "Element error, too many elements", CLEAN_UP)
     for (size_t i = 0; i < header.elements_size; i++) {
         struct plyelement *element = &header.elements[i];
-        if (element->properties_size > PLY_MAX_PROPERTIES) SetErrGoto(err, PLY_ILLEGAL_DATA, CLEAN_UP)
+        if (element->properties_size > PLY_MAX_PROPERTIES) {
+            SetErrGoto(err, "Property error, too many properties", CLEAN_UP)
+        }
 
         for (size_t j = 0; j < i; j++) {
             if (strcmp(element->name, header.elements[j].name) == 0) {
-                SetErrGoto(err, PLY_ELEMENT_NAME_ERROR, CLEAN_UP)
+                SetErrGoto(err, "Element name duplicate", CLEAN_UP)
             }
         }
 
-        if (!isalpha(*element->name)) SetErrGoto(err, PLY_HEADER_ILLEGAL_NAME, CLEAN_UP)
+        if (!isalpha(*element->name)) SetErrGoto(err, "Element name should start alpha numeric", CLEAN_UP)
 
         push_element(&array, element);
 
-        for(size_t p=0; p<element->properties_size; p++) {
+        for (size_t p = 0; p < element->properties_size; p++) {
             struct plyproperty *property = &element->properties[p];
 
             for (size_t j = 0; j < p; j++) {
                 if (strcmp(property->name, header.elements[i].properties[j].name) == 0) {
-                    SetErrGoto(err, PLY_ELEMENT_NAME_ERROR, CLEAN_UP)
+                    SetErrGoto(err, "Property name duplicate", CLEAN_UP)
                 }
             }
 
-            if (!isalpha(*property->name)) SetErrGoto(err, PLY_HEADER_ILLEGAL_NAME, CLEAN_UP)
-            if (property->type == PLY_TYPE_NONE) SetErrGoto(err, PLY_ILLEGAL_DATA, CLEAN_UP)
+            if (!isalpha(*property->name)) SetErrGoto(err, "Property name should start alpha numeric", CLEAN_UP)
+            if (property->type == PLY_TYPE_NONE) SetErrGoto(err, "Property type must not be NONE", CLEAN_UP)
 
             push_property(&array, property);
         }

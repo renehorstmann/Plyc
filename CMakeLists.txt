@@ -10,12 +10,12 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-long-long -pedantic -Wno-unused-f
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_library(plyc
-        src/rcodes.c
         src/header_parse.c
         src/header_write.c
         src/data_get.c
         src/data_parse.c
         src/data_write.c
+        src/ply.c
         src/simple_load.c
         src/simple_save.c
         )

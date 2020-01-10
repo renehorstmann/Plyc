@@ -34,12 +34,12 @@ int main() {
     // fail test
     {
         ret = ply_simple_load(NULL, NULL, NULL, NULL, NULL, "data_1.ply");
-        if (ret != PLY_ILLEGAL_DATA)
+        if (strcmp(ret, "SimpleCloud out_points are necessary and must not be NULL") != 0)
             return err("simple_load fail test failed (points missing test)", ret);
 
         ply_SimpleCloud points;
         ret = ply_simple_load(&points, NULL, NULL, NULL, NULL, "data_not_existing.fail");
-        if (ret != PLY_FILE_NOT_FOUND)
+        if (strcmp(ret, "File not found") != 0)
             return err("simple_load fail test failed (file not found test)", ret);
     }
 

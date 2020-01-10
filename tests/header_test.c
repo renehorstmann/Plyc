@@ -18,7 +18,9 @@ static char *open_file_as_string(const char *filename) {
         fseek(file, 0, SEEK_SET);
         text = malloc(length+1);
         if (text) {
-            fread(text, 1, length, file);
+            size_t chars_read = fread(text, 1, length, file);
+            if(chars_read != length)
+                fprintf(stderr, "open file warning, didnt read enough characters!\n");
             text[length] = '\0';
         }
         fclose(file);
@@ -253,7 +255,7 @@ int main() {
 
         plyheader header;
         ret = ply_header_parse(&header, header_text);
-        if (ret != PLY_NOT_A_PLY_FILE)
+        if (strcmp(ret, "Not a ply file") != 0)
             return err("header fail test 1 failed", ret);
     }
 
@@ -263,7 +265,7 @@ int main() {
 
         plyheader header;
         ret = ply_header_parse(&header, header_text);
-        if (ret != PLY_HEADER_ENDING_ERROR)
+        if (strcmp(ret, "Could not find end_header") != 0)
             return err("header fail test 2 failed", ret);
     }
 
@@ -273,7 +275,7 @@ int main() {
 
         plyheader header;
         ret = ply_header_parse(&header, header_text);
-        if (ret != PLY_HEADER_FORMAT_ERROR)
+        if (strcmp(ret, "Error parsing format") != 0)
             return err("header fail test 3 failed", ret);
     }
 
@@ -285,7 +287,7 @@ int main() {
 
         plyheader header;
         ret = ply_header_parse(&header, header_text);
-        if (ret != PLY_ELEMENT_ERROR)
+        if (strcmp(ret, "Element error, could not parse num") != 0)
             return err("header fail test 4 failed", ret);
     }
 
@@ -297,7 +299,7 @@ int main() {
 
         plyheader header;
         ret = ply_header_parse(&header, header_text);
-        if (ret != PLY_PROPERTY_ERROR)
+        if (strcmp(ret, "Property error, could not parse type") != 0)
             return err("header fail test 5 failed", ret);
     }
 

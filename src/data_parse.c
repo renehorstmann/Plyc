@@ -133,13 +133,13 @@ static ply_err parse_property(ply_byte *restrict out_data,
 
     // ply_data should never be behind ply_data_end
     if(*ply_data > ply_data_end)
-        return PLY_NOT_ENOUGH_DATA;
+        return "Data buffer is too small";
 
     if (!(*ply_data)) {
-        return PLY_DATA_PARSE_ERROR;
+        return "Data parse error";
     }
 
-    return PLY_SUCCESS;
+    return PLY_Success;
 }
 
 
@@ -157,6 +157,7 @@ size_t ply_data_element_size(struct plyelement element, size_t max_list_size) {
     return size * element.num;
 }
 
+
 ply_err ply_data_parse_element(ply_byte *restrict out_data,
                                ply_byte *restrict *ply_data_begin,
                                const ply_byte *ply_data_end,
@@ -164,7 +165,7 @@ ply_err ply_data_parse_element(ply_byte *restrict out_data,
                                enum ply_format format,
                                size_t max_list_size) {
     if (element.properties_size > PLY_MAX_PROPERTIES)
-        return PLY_ILLEGAL_DATA;
+        return "Property limit exceeded";
 
     setlocale(LC_ALL, "C");
 
@@ -176,5 +177,5 @@ ply_err ply_data_parse_element(ply_byte *restrict out_data,
         }
     }
 
-    return PLY_SUCCESS;
+    return PLY_Success;
 }

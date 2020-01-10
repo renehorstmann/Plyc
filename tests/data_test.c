@@ -23,7 +23,9 @@ static void open_file_as_string(char **start, char **end, const char *filename) 
         fseek(file, 0, SEEK_SET);
         text = malloc(length + 1);
         if (text) {
-            fread(text, 1, length, file);
+            size_t chars_read = fread(text, 1, length, file);
+            if(chars_read != length)
+                fprintf(stderr, "open file warning, didnt read enough characters!\n");
             text[length] = '\0';
         }
         fclose(file);
@@ -202,7 +204,7 @@ int main() {
             return err("data fail test 3 failed, needed element_size is wrong", "");
 
         ret = ply_data_parse_element((ply_byte *) data, &ply_data, data_end, header.elements[0], header.format, 0);
-        if (ret!=PLY_DATA_PARSE_ERROR) // in ascii, the parsing fails
+        if (strcmp(ret, "Data parse error")!=0) // in ascii, the parsing fails
             return err("data fail test 3 failed, parsing data failed", ret);
 
     }
@@ -267,7 +269,7 @@ int main() {
             return err("data fail test 4 failed, needed element_size for list is wrong", "");
 
         ret = ply_data_parse_element((ply_byte *) list_data, &ply_data, data_end, header.elements[1], header.format, 8);
-        if (ret != PLY_NOT_ENOUGH_DATA)
+        if (strcmp(ret,"Data buffer is too small") != 0)
             return err("data fail test 4 failed, parsing list_data failed", ret);
 
     }

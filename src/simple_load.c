@@ -22,7 +22,9 @@ static void open_file_as_string(char **start, char **end, const char *filename) 
         fseek(file, 0, SEEK_SET);
         text = malloc(length + 1);
         if (text) {
-            fread(text, 1, length, file);
+            size_t chars_read = fread(text, 1, length, file);
+            if(chars_read != length)
+                fprintf(stderr, "open file warning, didnt read enough characters!\n");
             text[length] = '\0';
         }
         fclose(file);
@@ -50,10 +52,10 @@ ply_err ply_simple_load(ply_SimpleCloud *out_points,
                         const char *file_path) {
     const int max_list_size = 12;
 
-    ply_err err = PLY_SUCCESS;
+    ply_err err = PLY_Success;
 
     if (!out_points)
-        return PLY_ILLEGAL_DATA;
+        return "SimpleCloud out_points are necessary and must not be NULL";
 
     // set output clouds (indices) to zeros
     memset(out_points, 0, sizeof(ply_SimpleCloud));
@@ -73,7 +75,7 @@ ply_err ply_simple_load(ply_SimpleCloud *out_points,
     char *file_end;
     open_file_as_string(&file_begin, &file_end, file_path);
     if (!file_begin)
-        return PLY_FILE_NOT_FOUND;
+        return "File not found";
 
     // parse header
     char *data_begin;
