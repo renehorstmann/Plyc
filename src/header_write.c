@@ -15,7 +15,7 @@ static void push_string(CharArray *array, const char *string) {
 }
 
 
-static void push_element(CharArray *array, struct plyelement *element) {
+static void push_element(CharArray *array, struct plyheaderelement *element) {
     push_string(array, "element ");
     push_string(array, element->name);
     CharArray_push(array, ' ');
@@ -44,7 +44,7 @@ static void push_type(CharArray *array, enum ply_type type) {
         push_string(array, "double");
 }
 
-static void push_property(CharArray *array, struct plyproperty *property) {
+static void push_property(CharArray *array, struct plyheaderproperty *property) {
 
     push_string(array, "property ");
 
@@ -60,7 +60,7 @@ static void push_property(CharArray *array, struct plyproperty *property) {
     CharArray_push(array, '\n');
 }
 
-ply_err ply_header_write_into(char *out_header, int buffer_size, plyheader header) {
+ply_err ply_header_write_into(char *out_header, int buffer_size, struct plyheader header) {
     char *header_on_heap;
     ply_err err = ply_header_write_to_heap(&header_on_heap, header);
     if (err)
@@ -76,7 +76,7 @@ ply_err ply_header_write_into(char *out_header, int buffer_size, plyheader heade
     return PLY_Success;
 }
 
-ply_err ply_header_write_to_heap(char **out_header_on_heap, plyheader header) {
+ply_err ply_header_write_to_heap(char **out_header_on_heap, struct plyheader header) {
 
     setlocale(LC_ALL, "C");
 
@@ -105,7 +105,7 @@ ply_err ply_header_write_to_heap(char **out_header_on_heap, plyheader header) {
 
     if (header.elements_size > PLY_MAX_ELEMENTS) SetErrGoto(err, "Element error, too many elements", CLEAN_UP)
     for (size_t i = 0; i < header.elements_size; i++) {
-        struct plyelement *element = &header.elements[i];
+        struct plyheaderelement *element = &header.elements[i];
         if (element->properties_size > PLY_MAX_PROPERTIES) {
             SetErrGoto(err, "Property error, too many properties", CLEAN_UP)
         }
@@ -121,7 +121,7 @@ ply_err ply_header_write_to_heap(char **out_header_on_heap, plyheader header) {
         push_element(&array, element);
 
         for (size_t p = 0; p < element->properties_size; p++) {
-            struct plyproperty *property = &element->properties[p];
+            struct plyheaderproperty *property = &element->properties[p];
 
             for (size_t j = 0; j < p; j++) {
                 if (strcmp(property->name, header.elements[i].properties[j].name) == 0) {

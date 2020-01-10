@@ -3,8 +3,8 @@
 #include "plyc/utilc/strviu.h"
 #include "plyc/header.h"
 
-static ply_err parse_element(struct plyelement *out_element, strviu viu) {
-    memset(out_element, 0, sizeof(struct plyelement));
+static ply_err parse_element(struct plyheaderelement *out_element, strviu viu) {
+    memset(out_element, 0, sizeof(struct plyheaderelement));
 
     strviu name, num;
 
@@ -51,8 +51,8 @@ static enum ply_type parse_type(strviu viu) {
     return PLY_TYPE_NONE;
 }
 
-static ply_err parse_property(struct plyproperty *out_property, strviu viu) {
-    memset(out_property, 0, sizeof(struct plyproperty));
+static ply_err parse_property(struct plyheaderproperty *out_property, strviu viu) {
+    memset(out_property, 0, sizeof(struct plyheaderproperty));
 
     if (sv_begins_with_cstring(viu, "list ")) {
         viu.begin += strlen("list ");
@@ -99,8 +99,8 @@ ply_err ply_header_get_end(char **out_header_end, const char *header_text) {
     return PLY_Success;
 }
 
-ply_err ply_header_parse(plyheader *out_header, const char *header_text) {
-    memset(out_header, 0, sizeof(plyheader));
+ply_err ply_header_parse(struct plyheader *out_header, const char *header_text) {
+    memset(out_header, 0, sizeof(struct plyheader));
     
     setlocale(LC_ALL, "C");
 
@@ -130,7 +130,7 @@ ply_err ply_header_parse(plyheader *out_header, const char *header_text) {
     viu = sv_lstrip(viu, ' ');
 
     // now each line could be one of [comment, element, property] (property before element is an error)
-    struct plyelement *actual_element = NULL;
+    struct plyheaderelement *actual_element = NULL;
 
     while (viu.begin < viu.end) {
         strviu line = sv_next_split(viu, '\n');
@@ -173,7 +173,7 @@ ply_err ply_header_parse(plyheader *out_header, const char *header_text) {
                 return "Property error, too many properties";
             line.begin += strlen("property ");
             line = sv_lstrip(line, ' ');
-            struct plyproperty *actual_property = &actual_element->properties[actual_element->properties_size++];
+            struct plyheaderproperty *actual_property = &actual_element->properties[actual_element->properties_size++];
             ply_err err = parse_property(actual_property, line);
             if (err)
                 return err;

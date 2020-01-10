@@ -82,15 +82,15 @@ ply_err ply_simple_load(ply_SimpleCloud *out_points,
     err = ply_header_get_end(&data_begin, file_begin);
     if (err) goto CLEAN_UP;
 
-    plyheader header;
+    struct plyheader header;
     err = ply_header_parse(&header, file_begin);
     if (err) goto CLEAN_UP;
 
     if (header.elements_size == 0 || header.elements_size > 2) SetErrGoto(err, "Wrong amount of elements", CLEAN_UP)
 
     // look up elements
-    struct plyelement *vertices = &header.elements[0];
-    struct plyelement *indices = NULL;
+    struct plyheaderelement *vertices = &header.elements[0];
+    struct plyheaderelement *indices = NULL;
     {
         bool contains_a_list = false;
         for (int p = 0; p < vertices->properties_size; p++) {
@@ -127,13 +127,13 @@ ply_err ply_simple_load(ply_SimpleCloud *out_points,
     }
 
     // parse xyz
-    plypropertydata x = ply_data_get_property(header, *vertices, "x", max_list_size);
+    struct plydataproperty x = ply_data_get_property(header, *vertices, "x", max_list_size);
     if (!x.stride) SetErrGoto(err, "property x not found", CLEAN_UP)
 
-    plypropertydata y = ply_data_get_property(header, *vertices, "y", max_list_size);
+    struct plydataproperty y = ply_data_get_property(header, *vertices, "y", max_list_size);
     if (!y.stride) SetErrGoto(err, "property y not found", CLEAN_UP)
 
-    plypropertydata z = ply_data_get_property(header, *vertices, "z", max_list_size);
+    struct plydataproperty z = ply_data_get_property(header, *vertices, "z", max_list_size);
     if (!z.stride) SetErrGoto(err, "property z not found", CLEAN_UP)
 
 
@@ -150,9 +150,9 @@ ply_err ply_simple_load(ply_SimpleCloud *out_points,
 
     // parse normals
     if (out_opt_normals) {
-        plypropertydata nx = ply_data_get_property(header, *vertices, "nx", max_list_size);
-        plypropertydata ny = ply_data_get_property(header, *vertices, "ny", max_list_size);
-        plypropertydata nz = ply_data_get_property(header, *vertices, "nz", max_list_size);
+        struct plydataproperty nx = ply_data_get_property(header, *vertices, "nx", max_list_size);
+        struct plydataproperty ny = ply_data_get_property(header, *vertices, "ny", max_list_size);
+        struct plydataproperty nz = ply_data_get_property(header, *vertices, "nz", max_list_size);
         if (nx.stride > 0 && ny.stride > 0 && nz.stride > 0) {
             out_opt_normals->data = TryNew(ply_vec4, vertices->num);
             if (out_opt_normals->data) {
@@ -172,19 +172,19 @@ ply_err ply_simple_load(ply_SimpleCloud *out_points,
 
     // parse colors
     if (out_opt_colors) {
-        plypropertydata red = ply_data_get_property(header, *vertices, "red", max_list_size);
+        struct plydataproperty red = ply_data_get_property(header, *vertices, "red", max_list_size);
         if (!red.stride)
             red = ply_data_get_property(header, *vertices, "r", max_list_size);
 
-        plypropertydata green = ply_data_get_property(header, *vertices, "green", max_list_size);
+        struct plydataproperty green = ply_data_get_property(header, *vertices, "green", max_list_size);
         if (!green.stride)
             green = ply_data_get_property(header, *vertices, "g", max_list_size);
 
-        plypropertydata blue = ply_data_get_property(header, *vertices, "blue", max_list_size);
+        struct plydataproperty blue = ply_data_get_property(header, *vertices, "blue", max_list_size);
         if (!blue.stride)
             blue = ply_data_get_property(header, *vertices, "b", max_list_size);
 
-        plypropertydata alpha = ply_data_get_property(header, *vertices, "alpha", max_list_size);
+        struct plydataproperty alpha = ply_data_get_property(header, *vertices, "alpha", max_list_size);
         if (!alpha.stride)
             alpha = ply_data_get_property(header, *vertices, "a", max_list_size);
 
@@ -215,7 +215,7 @@ ply_err ply_simple_load(ply_SimpleCloud *out_points,
 
     // parse mesh indices
     if (out_opt_indices && indices) {
-        plypropertydata faces = ply_data_get_property(header, *indices, indices->properties[0].name, max_list_size);
+        struct plydataproperty faces = ply_data_get_property(header, *indices, indices->properties[0].name, max_list_size);
         assert(faces.stride > 0 && "faces must be found");
 
         Vec3iArray array = {0};

@@ -51,7 +51,7 @@ int main() {
         if (!header_text)
             return err("failed to load data 1", "");
 
-        plyheader header;
+        struct plyheader header;
         ret = ply_header_parse(&header, header_text);
         if (ret)
             return err("data test 1 failed, parsing header failed", ret);
@@ -96,7 +96,7 @@ int main() {
         if (!header_text)
             return err("failed to load data 2", "");
 
-        plyheader header;
+        struct plyheader header;
         ret = ply_header_parse(&header, header_text);
         if (ret)
             return err("data test 2 failed, parsing header failed", ret);
@@ -185,7 +185,7 @@ int main() {
         if (!header_text)
             return err("failed to load data fail 3", "");
 
-        plyheader header;
+        struct plyheader header;
         ret = ply_header_parse(&header, header_text);
         if (ret)
             return err("data fail test 3 failed, parsing header failed", ret);
@@ -218,7 +218,7 @@ int main() {
         if (!header_text)
             return err("failed to load data fail 4", "");
 
-        plyheader header;
+        struct plyheader header;
         ret = ply_header_parse(&header, header_text);
         if (ret)
             return err("data fail test 4 failed, parsing header failed", ret);

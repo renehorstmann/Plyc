@@ -103,7 +103,7 @@ static void write_list(CharArray *array, enum ply_type list_type, enum ply_type 
 }
 
 ply_err ply_data_write_element_to_heap(char **out_element_on_heap, size_t *out_element_size,
-                                       plyelementdata element, enum ply_format format) {
+                                       struct plydataelement element, enum ply_format format) {
     CharArray array = {0};
     CharArray_set_capacity(&array, element.num * element.properties_size);  // minimal size as start size
     if(!array.array)

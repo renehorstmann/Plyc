@@ -105,7 +105,7 @@ static void parse_type(ply_byte *restrict out_data,
 static ply_err parse_property(ply_byte *restrict out_data,
                               ply_byte *restrict *ply_data,
                               const ply_byte *ply_data_end,
-                              struct plyproperty property,
+                              struct plyheaderproperty property,
                               enum ply_format format,
                               size_t max_list_size) {
 
@@ -143,13 +143,13 @@ static ply_err parse_property(ply_byte *restrict out_data,
 }
 
 
-size_t ply_data_property_size(struct plyproperty property, size_t max_list_size) {
+size_t ply_data_property_size(struct plyheaderproperty property, size_t max_list_size) {
     if (property.list_type != PLY_TYPE_NONE)
         return ply_type_size(property.list_type) + max_list_size * ply_type_size(property.type);
     return ply_type_size(property.type);
 }
 
-size_t ply_data_element_size(struct plyelement element, size_t max_list_size) {
+size_t ply_data_element_size(struct plyheaderelement element, size_t max_list_size) {
     size_t size = 0;
     for (size_t i = 0; i < element.properties_size; i++)
         size += ply_data_property_size(element.properties[i], max_list_size);
@@ -161,7 +161,7 @@ size_t ply_data_element_size(struct plyelement element, size_t max_list_size) {
 ply_err ply_data_parse_element(ply_byte *restrict out_data,
                                ply_byte *restrict *ply_data_begin,
                                const ply_byte *ply_data_end,
-                               struct plyelement element,
+                               struct plyheaderelement element,
                                enum ply_format format,
                                size_t max_list_size) {
     if (element.properties_size > PLY_MAX_PROPERTIES)
