@@ -37,7 +37,9 @@ plyproperty *plyelement_get_property(plyelement *self, const char *property_name
 }
 
 void ply_File_kill(ply_File *self) {
-    Free0(self->impl_);
+    // buffer start begins in the first element (same for all properties)
+    if(self->elements_size>=1 && self->elements[0].properties_size>=1)
+        Free0(self->elements[0].properties[0].data);
     self->elements_size = 0;
     self->comments_size = 0;
 }
@@ -123,8 +125,10 @@ ply_err ply_parse_memory(ply_File *out_file, const char *memory_begin, const cha
 
         active_buffer_block += ply_data_element_size(header.elements[e], max_list_size);
     }
+
     // move
-    out_file->impl_ = buffer;
+    // buffer is set to the first element
+    assert(buffer == out_file->elements[0].properties[0].data);
     buffer = NULL;
 
     CLEAN_UP:

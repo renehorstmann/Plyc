@@ -33,7 +33,6 @@ typedef struct {
     size_t comments_size;
     plyelement elements[PLY_MAX_ELEMENTS];
     size_t elements_size;
-    void *impl_;
 } ply_File;
 
 void ply_File_kill(ply_File *self);
