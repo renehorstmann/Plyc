@@ -9,36 +9,43 @@ extern "C" {
 #include "rcodes.h"
 #include "basetypes.h"
 
-struct plyproperty {
+typedef struct {
     char name[PLY_MAX_NAME_LENGTH];
     enum ply_type list_type;
     enum ply_type type;
     ply_byte *data;
     int offset;
     int stride;
-};
+} plyproperty;
 
-struct plyelement {
+typedef struct {
     char name[PLY_MAX_NAME_LENGTH];
     size_t num;
-    struct plyproperty properties[PLY_MAX_PROPERTIES];
+    plyproperty properties[PLY_MAX_PROPERTIES];
     size_t properties_size;
-};
+} plyelement;
+
+plyproperty *plyelement_get_property(plyelement *self, const char *property_name);
 
 typedef struct {
     enum ply_format format;
     char comments[PLY_MAX_COMMENTS][PLY_MAX_COMMENT_LENGTH];
     size_t comments_size;
-    struct plyelement elements[PLY_MAX_ELEMENTS];
+    plyelement elements[PLY_MAX_ELEMENTS];
     size_t elements_size;
-} plyfile;
+    void *impl_;
+} ply_File;
+
+void ply_File_kill(ply_File *self);
+
+plyelement *ply_File_get_element(ply_File *self, const char *element_name);
 
 
-ply_err ply_parse(plyfile *out_file, const char *filedata_begin, const char *filedata_end);
+ply_err ply_parse_file(ply_File *out_file, const char *filename, int max_list_size);
 
-struct plyproperty *ply_plyelement_get_property(struct plyelement element, const char *property_name);
+ply_err ply_parse_memory(ply_File *out_file, const char *memory_begin, const char *memory_end, int max_list_size);
 
-struct plyelement *ply_plyfile_get_element(struct plyfile file, const char *element_name);
+
 
 
 

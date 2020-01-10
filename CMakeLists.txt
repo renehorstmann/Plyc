@@ -34,18 +34,21 @@ enable_testing()
 add_executable(main tests/main.c)
 add_executable(test_header tests/header_test.c)
 add_executable(test_data tests/data_test.c)
+add_executable(test_ply tests/ply_test.c)
 add_executable(test_simple tests/simple_test.c)
 
 # link to the library
 target_link_libraries(main plyc)
 target_link_libraries(test_header plyc)
 target_link_libraries(test_data plyc)
+target_link_libraries(test_ply plyc)
 target_link_libraries(test_simple plyc)
 
 
 # add the executable as test
 add_test(TestHeader test_header)
 add_test(TestData test_data)
+add_test(TestPly test_ply)
 add_test(TestSimple test_simple)
 
 # copy data
