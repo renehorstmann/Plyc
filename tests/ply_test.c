@@ -63,6 +63,8 @@ int main() {
                     return err("parse_file 1 failed, value wrong", "");
             }
         }
+
+        ply_File_kill(&file);
     }
 
 }
