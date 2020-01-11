@@ -75,7 +75,7 @@ int main() {
 
     // The SimpleCloud struct consists of two fields:
     // - data is a pointer to an xyzw point matrix
-    // - num is the number of the points
+    // - num is the amount of the points
     ply_SimpleCloud points;
     points.data = data_points;
     points.num = 3;
