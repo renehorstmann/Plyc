@@ -4,6 +4,9 @@ A simple C library to load and save a .ply file with any desired data, written i
 
 ## TODO
 
++ simplify simple.h 
+  - single struct for xyz nxnynz rgb indices comments
+  - ply.h save/ write
 + bindings
   - Python3 (numpy)
 
