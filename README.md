@@ -19,12 +19,12 @@ Example [helloplyc.c](examples/helloplyc.c) shows how to load the points of a pl
 int main() {
 
     // ply file to load
-    const char *file = "helloplyc.ply";
+    const char *filename = "helloplyc.ply";
 
-    // a simple format to store a point cloud (with list of float[3])
+    // a simple format to store a point cloud (with a list of float[4])
     ply_Simple cloud;
 
-    ply_err err = ply_simple_load(&cloud, file);
+    ply_err err = ply_simple_load(&cloud, filename);
 
     // ply_err is a typedef of const char *
     // if an error occurs, the return value is not NULL and points to the error string
@@ -61,23 +61,21 @@ Example [easysave.c](examples/easysave.c) shows how to save points and a comment
 int main() {
 
     // ply file to save
-    const char *file = "easysave.ply";
+    const char *filename = "easysave.ply";
 
-    // 5 data points to save (x y z)
-    float data_points[5][3] = {{0, 0, 0},
-                               {1, 0, 0},
-                               {0, 1, 0},
-                               {0, 0, 1},
-                               {1, 1, 1}};
+    // 3 data points to save (x y z w=1)
+    // the forth data field (w) is not used and only for padding
+    // (in homogeneous coordinates, w is 1 for points and 0 for vectors)
+    float data_points[3][4] = {{1, 0, 0, 1},
+                               {0, 1, 0, 1},
+                               {0, 0, 1, 1}};
 
-    // The SimpleCloud struct consists of two fields:
-    // - data is a pointer to an xyzw point matrix
-    // - num is the number of the points
+    // The Simple struct consists of multiple fields:
     ply_Simple cloud;
-    cloud.points = data_points; // pointer to an xyz point matrix
-    cloud.normals = NULL;       // optional normals as nxnynz matrix
-    cloud.colors = NULL;        // optional colors as rgb matrix
-    cloud.num = 5;
+    cloud.points = data_points; // pointer to an xyzw point matrix
+    cloud.normals = NULL;       // optional normals as nxnynzw matrix
+    cloud.colors = NULL;        // optional colors as rgbw matrix
+    cloud.num = 5;              // number of points in the cloud
     cloud.indices = NULL;       // optional mesh indices as abc int matrix
     cloud.indices_size = 0;     // the number of triangles for the optional mesh
 
@@ -88,14 +86,14 @@ int main() {
     cloud.holds_heap_memory_ = false;   // for internal use
 
     // Another - easier - way to build up the struct, is to set all other values to 0 at beginning:
-    ply_Simple cloud_easy = {0};
-    cloud_easy.points = data_points;
-    cloud_easy.num = 5;
+    ply_Simple cloud_easy_creation = {0};
+    cloud_easy_creation.points = data_points;
+    cloud_easy_creation.num = 5;
 
 
     // save the Simple cloud to a file.
     // format must be one of PLY_FORMAT_ASCII, PLY_FORMAT_BINARY_LE, PLY_FORMAT_BINARY_BE
-    ply_err err = ply_simple_save(cloud, file, PLY_FORMAT_ASCII);
+    ply_err err = ply_simple_save(cloud, filename, PLY_FORMAT_ASCII);
 
     // ply_err is a typedef of const char *
     // if an error occurs, the return value is not NULL and points to the error string
@@ -104,7 +102,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    // killing a custom cloud has no effect, if holds_heap_memory_ is true, it will free each pointer
+    // killing a custom cloud has no effect, only if holds_heap_memory_ is true, it will free each pointer
     ply_Simple_kill(&cloud);
 }
 ```
@@ -119,12 +117,12 @@ A mesh consists of a point cloud and mesh indices, which describe a triangle by 
 int main() {
 
     // ply file to load
-    const char *file = "mesh.ply";
+    const char *filename = "mesh.ply";
 
     // a simple format to store a point cloud, but also a mesh (with an additional indices list of int[3])
     ply_Simple cloud;
 
-    ply_err err = ply_simple_load(&cloud, file);
+    ply_err err = ply_simple_load(&cloud, filename);
 
     // ply_err is a typedef of const char *
     // if an error occurs, the return value is not NULL and points to the error string
@@ -135,7 +133,7 @@ int main() {
 
     // check if the indices were available in the ply file (points must be available, or ply_err is set)
     if(cloud.indices_size == 0) {
-        fprintf(stderr, "The ply file %s did not contain mesh indices\n", file);
+        fprintf(stderr, "The ply file %s did not contain mesh indices\n", filename);
         exit(EXIT_FAILURE);
     }
 
@@ -167,5 +165,126 @@ int main() {
 
     // free the point cloud and its mesh indices
     ply_Simple_kill(&cloud);
+}
+```
+
+### Loading a ply file (advanced)
+Example [parsedadvanced.c](examples/parsedadvanced.c) shows how to load any ply file:
+After loading, the user can get access to all informations of the ply file
+and use some pointer arithmetic to iterate over its data.
+```c
+#include <stdio.h>
+#include <string.h>
+#include <plyc/ply.h>
+
+int main() {
+
+    // ply file to load
+    const char *filename = "helloplyc.ply";
+
+    // holds all information and memory, once loaded
+    ply_File plyfile;
+
+    // load a .ply file into memory
+    // the third parameter (max_list_size) defines the maximum size for each property list
+    ply_err err = ply_load_file(&plyfile, filename, 4);
+
+    // ply_err is a typedef of const char *
+    // if an error occurs, the return value is not NULL and points to the error string
+    if (err) {
+        fprintf(stderr, "Error loading the ply file: %s\n", err);
+        exit(EXIT_FAILURE);
+    }
+
+    // format of the ply file
+    printf("Format: ");
+    if (plyfile.format == PLY_FORMAT_ASCII)
+        puts("ascii");
+    if (plyfile.format == PLY_FORMAT_BINARY_LE)
+        puts("binary little endian");
+    if (plyfile.format == PLY_FORMAT_BINARY_BE)
+        puts("binary big endian");
+
+
+    // list all elements by name
+    printf("Elements:");
+    for (int e = 0; e < plyfile.elements_size; e++) {
+        printf(" %s", plyfile.elements[e].name);
+    }
+    puts("");
+
+    // get access to an element
+    plyelement *vertex;
+
+    // option 1:
+    vertex = &plyfile.elements[0];
+    printf("First element has the name: %s and %zu points\n", vertex->name, vertex->num);
+
+    // option 2:
+    vertex = ply_File_get_element(&plyfile, "vertex");
+    if (!vertex) {
+        fprintf(stderr, "Error finding element vertex");
+        exit(EXIT_FAILURE);
+    }
+
+    // list all properties of the vertex element by name
+    for (int p = 0; p < vertex->properties_size; p++) {
+        printf("Property name: %s: is_float: %d\n", vertex->properties[p].name,
+               vertex->properties[p].type == PLY_TYPE_FLOAT);
+    }
+
+
+    // get access to some properties
+    plyproperty *x, *y, *z;
+
+    // option 1:
+    x = &vertex->properties[0];
+    printf("First property has the name: %s\n", x->name);
+
+    // option 2:
+    y = plyelement_get_property(vertex, "y");
+    z = plyelement_get_property(vertex, "z");
+    if (!y || !z) {
+        fprintf(stderr, "Error finding properties y and z");
+        exit(EXIT_FAILURE);
+    }
+
+    // check if xyz all have floats as type
+    if(x->type != PLY_TYPE_FLOAT || y->type != PLY_TYPE_FLOAT || z->type != PLY_TYPE_FLOAT) {
+        fprintf(stderr, "The property type of xyz is not float");
+        exit(EXIT_FAILURE);
+    }
+
+    // check if xyz are not lists (marked with list_type == first element in the list describes its length)
+    if(x->list_type != PLY_TYPE_NONE || y->list_type != PLY_TYPE_NONE || z->list_type != PLY_TYPE_NONE) {
+        fprintf(stderr, "The property xyz is a list");
+        exit(EXIT_FAILURE);
+    }
+
+    // have fun with the point cloud:
+    for (int i = 0; i < vertex->num; i++) {
+        float *x_val = (float *) (x->data + x->offset + x->stride * i);
+        float *y_val = (float *) (y->data + y->offset + y->stride * i);
+        float *z_val = (float *) (z->data + z->offset + z->stride * i);
+        printf("%03d : %5.2f |%5.2f |%5.2f\n",
+               i, *x_val, *y_val, *z_val);
+    }
+    puts(" i  :    x  |   y  |   z");
+
+
+    // will print:
+    //Format: ascii
+    //Elements: vertex
+    //First element has the name: vertex and 2 points
+    //Property name: x: is_float: 1
+    //Property name: y: is_float: 1
+    //Property name: z: is_float: 1
+    //First property has the name: x
+    //000 :  1.10 | 2.20 | 3.30
+    //001 :  4.40 | 5.50 | 6.60
+    //i  :    x  |   y  |   z
+
+    // free the loaded ply file
+    ply_File_kill(&plyfile);
 }
 ```

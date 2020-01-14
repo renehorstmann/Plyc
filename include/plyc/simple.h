@@ -9,13 +9,13 @@ extern "C" {
 #include "header.h"
 
 
-typedef float ply_vec3[3];
+typedef float ply_vec4[4];
 typedef int ply_vec3i[3];
 
 typedef struct {
-    ply_vec3 *points;
-    ply_vec3 *normals;
-    ply_vec3 *colors;
+    ply_vec4 *points;
+    ply_vec4 *normals;
+    ply_vec4 *colors;
     size_t num;
 
     ply_vec3i *indices;

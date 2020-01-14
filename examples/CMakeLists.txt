@@ -14,13 +14,13 @@ find_library(PLYC_LIB plyc)
 add_executable(helloplyc helloplyc.c)
 add_executable(easysave easysave.c)
 add_executable(mesh mesh.c)
-add_executable(advancedparse advancedparse.c)
+add_executable(parseadvadvanced parsedadvanced.c)
 
 # link to plyc
 target_link_libraries(helloplyc ${PLYC_LIB})
 target_link_libraries(easysave ${PLYC_LIB})
 target_link_libraries(mesh ${PLYC_LIB})
-target_link_libraries(advancedparse ${PLYC_LIB})
+target_link_libraries(parseadvadvanced ${PLYC_LIB})
 
 # copy data
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/data/

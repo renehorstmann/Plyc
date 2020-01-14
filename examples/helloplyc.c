@@ -4,12 +4,12 @@
 int main() {
 
     // ply file to load
-    const char *file = "helloplyc.ply";
+    const char *filename = "helloplyc.ply";
 
-    // a simple format to store a point cloud (with list of float[3])
+    // a simple format to store a point cloud (with a list of float[4])
     ply_Simple cloud;
 
-    ply_err err = ply_simple_load(&cloud, file);
+    ply_err err = ply_simple_load(&cloud, filename);
 
     // ply_err is a typedef of const char *
     // if an error occurs, the return value is not NULL and points to the error string

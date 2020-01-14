@@ -4,12 +4,12 @@
 int main() {
 
     // ply file to load
-    const char *file = "mesh.ply";
+    const char *filename = "mesh.ply";
 
     // a simple format to store a point cloud, but also a mesh (with an additional indices list of int[3])
     ply_Simple cloud;
 
-    ply_err err = ply_simple_load(&cloud, file);
+    ply_err err = ply_simple_load(&cloud, filename);
 
     // ply_err is a typedef of const char *
     // if an error occurs, the return value is not NULL and points to the error string
@@ -20,7 +20,7 @@ int main() {
 
     // check if the indices were available in the ply file (points must be available, or ply_err is set)
     if(cloud.indices_size == 0) {
-        fprintf(stderr, "The ply file %s did not contain mesh indices\n", file);
+        fprintf(stderr, "The ply file %s did not contain mesh indices\n", filename);
         exit(EXIT_FAILURE);
     }
 

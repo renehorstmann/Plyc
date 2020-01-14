@@ -66,7 +66,7 @@ ply_err ply_simple_load(ply_Simple *out_simple,
     }
 
     simple.num = vertex->num;
-    simple.points = TryNew(ply_vec3, vertex->num);
+    simple.points = TryNew(ply_vec4, vertex->num);
     if (!simple.points) {
         PlySetErrGoto(err, "Allocation Error", CLEAN_UP);
     }
@@ -74,21 +74,23 @@ ply_err ply_simple_load(ply_Simple *out_simple,
         simple.points[i][0] = ply_type_to_float(x->data + x->offset + x->stride * i, x->type);
         simple.points[i][1] = ply_type_to_float(y->data + y->offset + y->stride * i, y->type);
         simple.points[i][2] = ply_type_to_float(z->data + z->offset + z->stride * i, z->type);
+        simple.points[i][3] = 1;
     }
 
     if (nx && ny && nz) {
-        simple.normals = TryNew(ply_vec3, vertex->num);
+        simple.normals = TryNew(ply_vec4, vertex->num);
         if (simple.normals) {
             for (int i = 0; i < vertex->num; i++) {
                 simple.normals[i][0] = ply_type_to_float(nx->data + nx->offset + nx->stride * i, nx->type);
                 simple.normals[i][1] = ply_type_to_float(ny->data + ny->offset + ny->stride * i, ny->type);
                 simple.normals[i][2] = ply_type_to_float(nz->data + nz->offset + nz->stride * i, nz->type);
+                simple.normals[i][3] = 0;
             }
         }
     }
 
     if (r && g && b) {
-        simple.colors = TryNew(ply_vec3, vertex->num);
+        simple.colors = TryNew(ply_vec4, vertex->num);
         if (simple.colors) {
             float scale = 1;
             if (r->type != PLY_TYPE_DOUBLE && r->type != PLY_TYPE_FLOAT)
@@ -97,6 +99,7 @@ ply_err ply_simple_load(ply_Simple *out_simple,
                 simple.colors[i][0] = scale * ply_type_to_float(r->data + r->offset + r->stride * i, r->type);
                 simple.colors[i][1] = scale * ply_type_to_float(g->data + g->offset + g->stride * i, g->type);
                 simple.colors[i][2] = scale * ply_type_to_float(b->data + b->offset + b->stride * i, b->type);
+                simple.colors[i][3] = 1;
             }
         }
     }
