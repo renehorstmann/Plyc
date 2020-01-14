@@ -1,10 +1,22 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "plyc/data.h"
+#include "plyc/utilc/alloc.h"
+#include "plyc/types.h"
 
+int ply_type_size(enum ply_type type) {
+    if (type == PLY_TYPE_CHAR || type == PLY_TYPE_UCHAR)
+        return 1;
+    if (type == PLY_TYPE_SHORT || type == PLY_TYPE_USHORT)
+        return 2;
+    if (type == PLY_TYPE_INT || type == PLY_TYPE_UINT || type == PLY_TYPE_FLOAT)
+        return 4;
+    if (type == PLY_TYPE_DOUBLE)
+        return 8;
+    return 0;
+}
 
-float ply_data_to_float(const ply_byte *data, enum ply_type type) {
+float ply_type_to_float(const ply_byte *data, enum ply_type type) {
     if (type == PLY_TYPE_FLOAT)
         return (float) *((float *) data);
     if (type == PLY_TYPE_DOUBLE)
@@ -25,7 +37,7 @@ float ply_data_to_float(const ply_byte *data, enum ply_type type) {
     return 0;
 }
 
-int ply_data_to_int(const ply_byte *data, enum ply_type type) {
+int ply_type_to_int(const ply_byte *data, enum ply_type type) {
     if (type == PLY_TYPE_INT)
         return (int) *((int32_t *) data);
     if (type == PLY_TYPE_UINT)
@@ -46,33 +58,24 @@ int ply_data_to_int(const ply_byte *data, enum ply_type type) {
     return 0;
 }
 
-struct plydataproperty ply_data_get_property(struct plyheader header, struct plyheaderelement element,
-                                             const char *property_name, size_t max_list_size) {
-    int property_index = 0;
-    struct plyheaderproperty *property = NULL;
-    for (int i = 0; i < element.properties_size; i++) {
-        if (strcmp(element.properties[i].name, property_name) == 0) {
-            property_index = i;
-            property = &element.properties[i];
-            break;
-        }
+plyproperty *plyelement_get_property(plyelement *self, const char *property_name) {
+    for(int i=0; i<self->properties_size; i++) {
+        if(strcmp(self->properties[i].name, property_name) == 0)
+            return &self->properties[i];
     }
-    if (!property)
-        return (struct plydataproperty) {0};
-
-
-    struct plydataproperty res = {0};
-
-    res.type = property->type;
-    res.list_type = property->list_type;
-
-    for (int i = 0; i < property_index; i++)
-        res.offset += ply_data_property_size(element.properties[i], max_list_size);
-
-    for (int i = 0; i < element.properties_size; i++)
-        res.stride += ply_data_property_size(element.properties[i], max_list_size);
-
-    return res;
+    return NULL;
 }
 
+void ply_File_kill(ply_File *self) {
+    Free0(self->parsed_data_on_heap_);
+    self->elements_size = 0;
+    self->comments_size = 0;
+}
 
+plyelement *ply_File_get_element(ply_File *self, const char *element_name) {
+    for(int i=0; i<self->elements_size; i++) {
+        if(strcmp(self->elements[i].name, element_name) == 0)
+            return &self->elements[i];
+    }
+    return NULL;
+}

@@ -4,268 +4,152 @@
 
 #include "plyc/utilc/alloc.h"
 #include "plyc/utilc/dynarray.h"
-#include "plyc/header.h"
-#include "plyc/data.h"
+#include "plyc/ply.h"
 
 #include "plyc/simple.h"
 
 
 DynArrayWithoutCopy(ply_vec3i, Vec3iArray)
 
-static void open_file_as_string(char **start, char **end, const char *filename) {
-    char *text = NULL;
-    long length = 0;
-    FILE *file = fopen(filename, "r");
-    if (file) {
-        fseek(file, 0, SEEK_END);
-        length = ftell(file);
-        fseek(file, 0, SEEK_SET);
-        text = malloc(length + 1);
-        if (text) {
-            size_t chars_read = fread(text, 1, length, file);
-            if(chars_read != length)
-                fprintf(stderr, "open file warning, didnt read enough characters!\n");
-            text[length] = '\0';
-        }
-        fclose(file);
+
+void ply_Simple_kill(ply_Simple *self) {
+    if (self->holds_heap_memory_) {
+        Free0(self->points);
+        Free0(self->normals);
+        Free0(self->colors);
+        Free0(self->indices);
+        self->num = 0;
+        self->indices_size = 0;
+        self->comments_size = 0;
     }
-    *start = text;
-    *end = text + length;
-}
-
-void ply_SimpleCloud_kill(ply_SimpleCloud *self) {
-    Free0(self->data);
-    self->num = 0;
-}
-
-void ply_SimpleMeshIndices_kill(ply_SimpleMeshIndices *self) {
-    Free0(self->indices);
-    self->num = 0;
 }
 
 
-ply_err ply_simple_load(ply_SimpleCloud *out_points,
-                        ply_SimpleCloud *out_opt_normals,
-                        ply_SimpleCloud *out_opt_colors,
-                        ply_SimpleMeshIndices *out_opt_indices,
-                        ply_comments *out_opt_comments,
-                        const char *file_path) {
-    const int max_list_size = 12;
+ply_err ply_simple_load(ply_Simple *out_simple,
+                        const char *filename) {
+    const int max_list_size = 4;
 
     ply_err err = PLY_Success;
 
-    if (!out_points)
-        return "SimpleCloud out_points are necessary and must not be NULL";
 
-    // set output clouds (indices) to zeros
-    memset(out_points, 0, sizeof(ply_SimpleCloud));
-    if (out_opt_normals)
-        memset(out_opt_normals, 0, sizeof(ply_SimpleCloud));
-    if (out_opt_colors)
-        memset(out_opt_normals, 0, sizeof(ply_SimpleCloud));
-    if (out_opt_indices)
-        memset(out_opt_indices, 0, sizeof(ply_SimpleMeshIndices));
+    ply_File file;
+    err = ply_load_file(&file, filename, max_list_size);
+    if (err) return err;
 
-    // holding heap memory
-    char *file_begin = NULL;
-    ply_byte *parsed_vertices_data = NULL;
-    ply_byte *parsed_indices_data = NULL;
 
-    // load file into memory
-    char *file_end;
-    open_file_as_string(&file_begin, &file_end, file_path);
-    if (!file_begin)
-        return "File not found";
+    ply_Simple simple = {0};
+    simple.holds_heap_memory_ = true;
+    simple.comments_size = file.comments_size;
+    memcpy(simple.comments, file.comments, sizeof(file.comments));
 
-    // parse header
-    char *data_begin;
-    err = ply_header_get_end(&data_begin, file_begin);
-    if (err) goto CLEAN_UP;
-
-    struct plyheader header;
-    err = ply_header_parse(&header, file_begin);
-    if (err) goto CLEAN_UP;
-
-    if (header.elements_size == 0 || header.elements_size > 2) SetErrGoto(err, "Wrong amount of elements", CLEAN_UP)
-
-    // look up elements
-    struct plyheaderelement *vertices = &header.elements[0];
-    struct plyheaderelement *indices = NULL;
-    {
-        bool contains_a_list = false;
-        for (int p = 0; p < vertices->properties_size; p++) {
-            if (vertices->properties[p].list_type != PLY_TYPE_NONE) {
-                contains_a_list = true;
-                break;
-            }
-        }
-        if (contains_a_list) SetErrGoto(err, "Vertices element not available, must be the first element", CLEAN_UP)
-
-        if (header.elements_size == 2) {
-            if (header.elements[1].properties_size != 1
-                || header.elements[1].properties[0].list_type == PLY_TYPE_NONE) {
-                SetErrGoto(err, "Indices element expected, should be second with a list property", CLEAN_UP)
-            }
-            indices = &header.elements[1];
-        }
+    if (file.elements_size < 1 || file.elements_size > 2) {
+        PlySetErrGoto(err, "Wrong number of elements, should be 1 or 2", CLEAN_UP)
     }
 
+    plyelement *vertex = &file.elements[0];
+    plyelement *face = NULL;
+    if (file.elements_size == 2)
+        face = &file.elements[1];
 
-    // copy and convert data
-    parsed_vertices_data = TryNew(ply_byte, ply_data_element_size(*vertices, max_list_size));
-    if (!parsed_vertices_data) SetErrGoto(err, "Allocation error", CLEAN_UP)
-    err = ply_data_parse_element(parsed_vertices_data, &data_begin, file_end, *vertices, header.format,
-                                 max_list_size);
-    if (err) goto CLEAN_UP;
+    plyproperty *x = plyelement_get_property(vertex, "x");
+    plyproperty *y = plyelement_get_property(vertex, "y");
+    plyproperty *z = plyelement_get_property(vertex, "z");
+    plyproperty *nx = plyelement_get_property(vertex, "nx");;
+    plyproperty *ny = plyelement_get_property(vertex, "ny");;
+    plyproperty *nz = plyelement_get_property(vertex, "nz");;
+    plyproperty *r = plyelement_get_property(vertex, "red");
+    plyproperty *g = plyelement_get_property(vertex, "green");
+    plyproperty *b = plyelement_get_property(vertex, "blue");
 
-    if (indices) {
-        parsed_indices_data = TryNew(ply_byte, ply_data_element_size(*indices, max_list_size));
-        if (!parsed_indices_data) SetErrGoto(err, "Allocation error", CLEAN_UP)
-        err = ply_data_parse_element(parsed_indices_data, &data_begin, file_end, *indices, header.format,
-                                     max_list_size);
-        if (err) goto CLEAN_UP;
+    if (!x || !y || !z) {
+        PlySetErrGoto(err, "XYZ are missing in the ply file", CLEAN_UP)
     }
 
-    // parse xyz
-    struct plydataproperty x = ply_data_get_property(header, *vertices, "x", max_list_size);
-    if (!x.stride) SetErrGoto(err, "property x not found", CLEAN_UP)
-
-    struct plydataproperty y = ply_data_get_property(header, *vertices, "y", max_list_size);
-    if (!y.stride) SetErrGoto(err, "property y not found", CLEAN_UP)
-
-    struct plydataproperty z = ply_data_get_property(header, *vertices, "z", max_list_size);
-    if (!z.stride) SetErrGoto(err, "property z not found", CLEAN_UP)
-
-
-    out_points->num = vertices->num;
-    out_points->data = TryNew(ply_vec4, vertices->num);
-    if (!out_points->data) SetErrGoto(err, "Allocation error", CLEAN_UP)
-
-    for (int i = 0; i < vertices->num; i++) {
-        out_points->data[i][0] = ply_data_to_float(parsed_vertices_data + x.offset + x.stride * i, x.type);
-        out_points->data[i][1] = ply_data_to_float(parsed_vertices_data + y.offset + y.stride * i, y.type);
-        out_points->data[i][2] = ply_data_to_float(parsed_vertices_data + z.offset + z.stride * i, z.type);
-        out_points->data[i][3] = 1;
+    simple.num = vertex->num;
+    simple.points = TryNew(ply_vec3, vertex->num);
+    if (!simple.points) {
+        PlySetErrGoto(err, "Allocation Error", CLEAN_UP);
+    }
+    for (int i = 0; i < vertex->num; i++) {
+        simple.points[i][0] = ply_type_to_float(x->data + x->offset + x->stride * i, x->type);
+        simple.points[i][1] = ply_type_to_float(y->data + y->offset + y->stride * i, y->type);
+        simple.points[i][2] = ply_type_to_float(z->data + z->offset + z->stride * i, z->type);
     }
 
-    // parse normals
-    if (out_opt_normals) {
-        struct plydataproperty nx = ply_data_get_property(header, *vertices, "nx", max_list_size);
-        struct plydataproperty ny = ply_data_get_property(header, *vertices, "ny", max_list_size);
-        struct plydataproperty nz = ply_data_get_property(header, *vertices, "nz", max_list_size);
-        if (nx.stride > 0 && ny.stride > 0 && nz.stride > 0) {
-            out_opt_normals->data = TryNew(ply_vec4, vertices->num);
-            if (out_opt_normals->data) {
-                out_opt_normals->num = vertices->num;
-                for (int i = 0; i < vertices->num; i++) {
-                    out_opt_normals->data[i][0] = ply_data_to_float(parsed_vertices_data + nx.offset + nx.stride * i,
-                                                                    nx.type);
-                    out_opt_normals->data[i][1] = ply_data_to_float(parsed_vertices_data + ny.offset + ny.stride * i,
-                                                                    ny.type);
-                    out_opt_normals->data[i][2] = ply_data_to_float(parsed_vertices_data + nz.offset + nz.stride * i,
-                                                                    nz.type);
-                    out_opt_normals->data[i][3] = 0;
-                }
+    if (nx && ny && nz) {
+        simple.normals = TryNew(ply_vec3, vertex->num);
+        if (simple.normals) {
+            for (int i = 0; i < vertex->num; i++) {
+                simple.normals[i][0] = ply_type_to_float(nx->data + nx->offset + nx->stride * i, nx->type);
+                simple.normals[i][1] = ply_type_to_float(ny->data + ny->offset + ny->stride * i, ny->type);
+                simple.normals[i][2] = ply_type_to_float(nz->data + nz->offset + nz->stride * i, nz->type);
             }
         }
     }
 
-    // parse colors
-    if (out_opt_colors) {
-        struct plydataproperty red = ply_data_get_property(header, *vertices, "red", max_list_size);
-        if (!red.stride)
-            red = ply_data_get_property(header, *vertices, "r", max_list_size);
-
-        struct plydataproperty green = ply_data_get_property(header, *vertices, "green", max_list_size);
-        if (!green.stride)
-            green = ply_data_get_property(header, *vertices, "g", max_list_size);
-
-        struct plydataproperty blue = ply_data_get_property(header, *vertices, "blue", max_list_size);
-        if (!blue.stride)
-            blue = ply_data_get_property(header, *vertices, "b", max_list_size);
-
-        struct plydataproperty alpha = ply_data_get_property(header, *vertices, "alpha", max_list_size);
-        if (!alpha.stride)
-            alpha = ply_data_get_property(header, *vertices, "a", max_list_size);
-
-        float scale = 1.0f / 255.0f;
-        if(red.type == PLY_TYPE_FLOAT || red.type == PLY_TYPE_DOUBLE)
-            scale = 1.0f;
-
-        if (red.stride > 0 && green.stride > 0 && blue.stride > 0) {
-            out_opt_colors->data = TryNew(ply_vec4, vertices->num);
-            if (out_opt_colors->data) {
-                out_opt_colors->num = vertices->num;
-                for (int i = 0; i < vertices->num; i++) {
-                    out_opt_colors->data[i][0] = scale *
-                            ply_data_to_float(parsed_vertices_data + red.offset + red.stride * i, red.type);
-                    out_opt_colors->data[i][1] = scale *
-                            ply_data_to_float(parsed_vertices_data + green.offset + green.stride * i, green.type);
-                    out_opt_colors->data[i][2] = scale *
-                            ply_data_to_float(parsed_vertices_data + blue.offset + blue.stride * i, blue.type);
-                    if (alpha.stride) {
-                        out_opt_colors->data[i][3] = scale *
-                                ply_data_to_float(parsed_vertices_data + alpha.offset + alpha.stride * i, alpha.type);
-                    } else
-                        out_opt_colors->data[i][3] = 1;
-                }
+    if (r && g && b) {
+        simple.colors = TryNew(ply_vec3, vertex->num);
+        if (simple.colors) {
+            float scale = 1;
+            if (r->type != PLY_TYPE_DOUBLE && r->type != PLY_TYPE_FLOAT)
+                scale /= 255;
+            for (int i = 0; i < vertex->num; i++) {
+                simple.colors[i][0] = scale * ply_type_to_float(r->data + r->offset + r->stride * i, r->type);
+                simple.colors[i][1] = scale * ply_type_to_float(g->data + g->offset + g->stride * i, g->type);
+                simple.colors[i][2] = scale * ply_type_to_float(b->data + b->offset + b->stride * i, b->type);
             }
         }
     }
 
-    // parse mesh indices
-    if (out_opt_indices && indices) {
-        struct plydataproperty faces = ply_data_get_property(header, *indices, indices->properties[0].name, max_list_size);
-        assert(faces.stride > 0 && "faces must be found");
-
+    if (face && face->properties_size == 1 && face->properties[0].list_type != PLY_TYPE_NONE) {
+        plyproperty *indices = &face->properties[0];
         Vec3iArray array = {0};
-        Vec3iArray_set_capacity(&array, indices->num);
+        Vec3iArray_set_capacity(&array, face->num);
+        if (array.array) {
+            for (int i = 0; i < face->num; i++) {
+                ply_byte *list_data = indices->data + indices->offset + indices->stride * i;
 
-        for (int i = 0; i < indices->num; i++) {
-            ply_byte *list_data = parsed_indices_data + faces.offset + faces.stride * i;
+                // parse list size
+                int list_size = ply_type_to_int(list_data, indices->list_type);
+                if (list_size < 3 || list_size > 4) {
+                    fprintf(stderr, "[Plyc] warning: parsing mesh indices got a size of %d (should be 3|4), "
+                                    "face will be ignored!\n", list_size);
+                    continue;
+                }
+                list_data += ply_type_size(indices->list_type);
 
-            // parse list size
-            int list_size = ply_data_to_int(list_data, faces.list_type);
-            if (list_size < 3 || list_size > 4) {
-                fprintf(stderr, "[Plyc] warning: parsing mesh indices got a size of %d (should be 3|4), "
-                                "face will be ignored!\n", list_size);
-                continue;
+                // copy the triangle vertex indices
+                ply_vec3i *face_a = Vec3iArray_append(&array);
+                for (int v = 0; v < 3; v++) {
+                    (*face_a)[v] = ply_type_to_int(list_data, indices->type);
+                    list_data += ply_type_size(indices->type);
+                }
+
+                // add second triangle to match the quad
+                if (list_size == 4) {
+                    ply_vec3i *face_b = Vec3iArray_append(&array);
+                    (*face_b)[0] = (*face_a)[0];
+                    (*face_b)[1] = (*face_a)[2];
+                    (*face_b)[2] = ply_type_to_int(list_data, indices->type);
+                }
             }
-            list_data += ply_type_size(faces.list_type);
 
-            // copy the triangle vertex indices
-            ply_vec3i *face_a = Vec3iArray_append(&array);
-            for (int v = 0; v < 3; v++) {
-                (*face_a)[v] = ply_data_to_int(list_data, faces.type);
-                list_data += ply_type_size(faces.type);
-            }
-
-            // add second triangle to match the quad
-            if (list_size == 4) {
-                ply_vec3i *face_b = Vec3iArray_append(&array);
-                (*face_b)[0] = (*face_a)[0];
-                (*face_b)[1] = (*face_a)[2];
-                (*face_b)[2] = ply_data_to_int(list_data, faces.type);
-            }
+            // move array
+            simple.indices = array.array;
+            simple.indices_size = array.size;
         }
-
-        // move array
-        out_opt_indices->indices = array.array;
-        out_opt_indices->num = array.size;
     }
 
-    // copy comments
-    if(out_opt_comments) {
-        out_opt_comments->comments_size = header.comments_size;
-        memcpy(out_opt_comments->comments, header.comments, sizeof(header.comments));
-    }
-
+    // move
+    *out_simple = simple;
+    simple = (ply_Simple) {0};
 
     CLEAN_UP:
-    free(file_begin);
-    free(parsed_vertices_data);
-    free(parsed_indices_data);
-
+    ply_File_kill(&file);
+    free(simple.points);
+    free(simple.normals);
+    free(simple.colors);
+    free(simple.indices);
     return err;
 }
 

@@ -6,19 +6,10 @@ int main() {
     // ply file to load
     const char *file = "mesh.ply";
 
-    // a simple format to store a point cloud (list of float[4])
-    ply_SimpleCloud points;
+    // a simple format to store a point cloud, but also a mesh (with an additional indices list of int[3])
+    ply_Simple cloud;
 
-    // a simple format to store the according mesh indices of the point cloud
-    // each triangle has the according indices for the point cloud (list of int[3])
-    ply_SimpleMeshIndices indices;
-
-    ply_err err = ply_simple_load(&points, // cloud for x y z
-                                  NULL,    // optional cloud for nx ny nz
-                                  NULL,    // optional cloud for red green blue
-                                  &indices, // optional mesh indices
-                                  NULL,    // optional comments from the ply file
-                                  file);
+    ply_err err = ply_simple_load(&cloud, file);
 
     // ply_err is a typedef of const char *
     // if an error occurs, the return value is not NULL and points to the error string
@@ -28,19 +19,19 @@ int main() {
     }
 
     // check if the indices were available in the ply file (points must be available, or ply_err is set)
-    if(indices.num == 0) {
+    if(cloud.indices_size == 0) {
         fprintf(stderr, "The ply file %s did not contain mesh indices\n", file);
         exit(EXIT_FAILURE);
     }
 
     // have fun with the mesh
-    for(int i=0; i<indices.num; i++) {
+    for(int i=0; i<cloud.indices_size; i++) {
         printf("Triangle %d:\n", i);
         for(int abc=0; abc<3; abc++) {
-            int index = indices.indices[i][abc];
+            int index = cloud.indices[i][abc];
             printf("%03d :%c: %5.2f |%5.2f |%5.2f\n",
                    index, 'a' + abc,
-                   points.data[index][0], points.data[index][1], points.data[index][2]);
+                   cloud.points[index][0], cloud.points[index][1], cloud.points[index][2]);
         }
         puts("");
     }
@@ -60,6 +51,5 @@ int main() {
     // i  :v:    x  |   y  |   z
 
     // free the point cloud and its mesh indices
-    ply_SimpleCloud_kill(&points);
-    ply_SimpleMeshIndices_kill(&indices);
+    ply_Simple_kill(&cloud);
 }

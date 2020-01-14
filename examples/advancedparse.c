@@ -1,15 +1,17 @@
 #include <stdio.h>
-#include <plyc/simple.h>
+#include <plyc/ply.h>
 
 int main() {
 
     // ply file to load
     const char *file = "helloplyc.ply";
 
-    // a simple format to store a point cloud (with list of float[3])
-    ply_Simple cloud;
+    // holds all information and memory, once loaded
+    ply_File plyfile;
 
-    ply_err err = ply_simple_load(&cloud, file);
+    // load a .ply file into memory
+    // the third parameter (max_list_size) defines the maximum size for each list
+    ply_err err = ply_load_file(&plyfile, file, 4);
 
     // ply_err is a typedef of const char *
     // if an error occurs, the return value is not NULL and points to the error string
@@ -19,9 +21,9 @@ int main() {
     }
 
     // have fun with the point cloud
-    for(int i=0; i < cloud.num; i++) {
+    for(int i=0; i<points.num; i++) {
         printf("%03d : %5.2f |%5.2f |%5.2f\n",
-               i, cloud.points[i][0], cloud.points[i][1], cloud.points[i][2]);
+               i, points.data[i][0], points.data[i][1], points.data[i][2]);
     }
     puts(" i  :    x  |   y  |   z");
 
@@ -31,5 +33,5 @@ int main() {
     // i  :    x  |   y  |   z
 
     // free the point cloud
-    ply_Simple_kill(&cloud);
+    ply_File_kill(&file);
 }

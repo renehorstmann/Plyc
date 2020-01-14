@@ -9,42 +9,33 @@ extern "C" {
 #include "header.h"
 
 
-typedef float ply_vec4[4];
+typedef float ply_vec3[3];
 typedef int ply_vec3i[3];
 
 typedef struct {
-    ply_vec4 *data;
+    ply_vec3 *points;
+    ply_vec3 *normals;
+    ply_vec3 *colors;
     size_t num;
-} ply_SimpleCloud;
 
-void ply_SimpleCloud_kill(ply_SimpleCloud *self);
-
-typedef struct {
     ply_vec3i *indices;
-    size_t num;
-} ply_SimpleMeshIndices;
+    size_t indices_size;
 
-void ply_SimpleMeshIndices_kill(ply_SimpleMeshIndices *self);
-
-
-typedef struct {
     char comments[PLY_MAX_COMMENTS][PLY_MAX_COMMENT_LENGTH];
     size_t comments_size;
-} ply_comments;
 
-ply_err ply_simple_load(ply_SimpleCloud *out_points,
-                        ply_SimpleCloud *out_opt_normals,
-                        ply_SimpleCloud *out_opt_colors,
-                        ply_SimpleMeshIndices *out_opt_indices,
-                        ply_comments *out_opt_comments,
-                        const char *file_path);
+    bool holds_heap_memory_;
+} ply_Simple;
 
-ply_err ply_simple_save(ply_SimpleCloud points,
-                        ply_SimpleCloud *opt_normals,
-                        ply_SimpleCloud *opt_colors,
-                        ply_SimpleMeshIndices *opt_indices,
-                        ply_comments *opt_comments,
-                        const char *file_path,
+// only kill if not custom created
+void ply_Simple_kill(ply_Simple *self);
+
+
+ply_err ply_simple_load(ply_Simple *out_simple,
+                        const char *filename);
+
+ply_err ply_simple_save(ply_Simple simple,
+                        const char *filename,
                         enum ply_format format);
 
 #ifdef __cplusplus

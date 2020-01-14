@@ -3,40 +3,13 @@
 #include <stdio.h>
 #include <locale.h>
 
-#include "plyc/utilc/strviu.h"
+#include "plyc/utilc/alloc.h"
 #include "plyc/utilc/dynarray.h"
 #include "plyc/data.h"
 
+#include "os_helper.h"
+
 DynArray(char, CharArray)
-
-static bool system_is_little_endian() {
-    int n = 1;
-    // little endian if true
-    return *(char *) &n == 1;
-}
-
-static void switch_endian(ply_byte *restrict dst, const ply_byte *restrict src, int n) {
-    for (int i = 0; i < n; i++) {
-        dst[i] = src[n - i - 1];
-    }
-}
-
-
-//static size_t list_size(const ply_byte *data, enum ply_type type) {
-//    if (type == PLY_TYPE_CHAR)
-//        return (size_t) (*(int8_t *) data);
-//    if (type == PLY_TYPE_UCHAR)
-//        return (size_t) (*(uint8_t *) data);
-//    if (type == PLY_TYPE_SHORT)
-//        return (size_t) (*(int16_t *) data);
-//    if (type == PLY_TYPE_USHORT)
-//        return (size_t) (*(uint16_t *) data);
-//    if (type == PLY_TYPE_INT)
-//        return (size_t) (*(int32_t *) data);
-//    if (type == PLY_TYPE_UINT)
-//        return (size_t) (*(uint32_t *) data);
-//    return 0;
-//}
 
 
 static void write_type(CharArray *array, enum ply_type type, enum ply_format format, const ply_byte *data) {
@@ -102,39 +75,78 @@ static void write_list(CharArray *array, enum ply_type list_type, enum ply_type 
         write_type(array, type, format, data + ply_type_size(type) * i);
 }
 
-ply_err ply_data_write_element_to_heap(char **out_element_on_heap, size_t *out_element_size,
-                                       struct plydataelement element, enum ply_format format) {
+static ply_err write_element_to_heap(char **out_element_on_heap, size_t *out_element_size,
+                                     plyelement element, enum ply_format format) {
     CharArray array = {0};
     CharArray_set_capacity(&array, element.num * element.properties_size);  // minimal size as start size
-    if(!array.array)
+    if (!array.array)
         return "Allocation error";
 
-    for(size_t i=0; i<element.num; i++) {
-        for(size_t p=0; p<element.properties_size; p++) {
+    for (size_t i = 0; i < element.num; i++) {
+        for (size_t p = 0; p < element.properties_size; p++) {
+            plyproperty *property = &element.properties[p];
+            const ply_byte *data = property->data + property->offset + property->stride * i;
 
-            const ply_byte *data = element.properties_data[p] + element.properties[p].offset;
-            element.properties[p].offset += element.properties[p].stride;
-
-            if(element.properties[p].list_type == PLY_TYPE_NONE) {
-                write_type(&array, element.properties[p].type, format, data);
+            if (property->list_type == PLY_TYPE_NONE) {
+                write_type(&array, property->type, format, data);
             } else {
-                int size = ply_data_to_int(data, element.properties[p].list_type);
-                data += ply_type_size(element.properties[p].list_type);
-                write_list(&array, element.properties[p].list_type, element.properties[p].type, format, data, size);
+                int size = ply_type_to_int(data, property->list_type);
+                data += ply_type_size(property->list_type);
+                write_list(&array, property->list_type, property->type, format, data, size);
             }
         }
 
-        if(format == PLY_FORMAT_ASCII)
+        if (format == PLY_FORMAT_ASCII)
             CharArray_push(&array, '\n');
     }
 
     *out_element_size = array.size;
 
-    if(format == PLY_FORMAT_ASCII)
+    if (format == PLY_FORMAT_ASCII)
         CharArray_push(&array, '\0');
 
     *out_element_on_heap = array.array;
 
     return PLY_Success;
+}
+
+
+ply_err ply_data_write_to_heap(char **out_data_on_heap, size_t *out_data_size, ply_File file) {
+    ply_err err = PLY_Success;
+
+    if(file.elements_size <= 0)
+        return "Elements error, no elements available to write";
+
+    char *data_array[file.elements_size];
+    size_t size_array[file.elements_size];
+    size_t buffer_size = 0;
+    size_t size = 0;
+
+    for (int e = 0; e < file.elements_size; e++) {
+        err = write_element_to_heap(&data_array[e], &size_array[e], file.elements[e], file.format);
+        if (err)
+            goto CLEAN_UP;
+
+        buffer_size += size_array[e];
+        size++;
+    }
+
+    // copy to single buffer
+    *out_data_on_heap = TryNew(char, buffer_size);
+    if(!*out_data_on_heap)
+        PlySetErrGoto(err, "Allocation error", CLEAN_UP);
+
+    char *actual_data = *out_data_on_heap;
+    for(int i=0; i<size; i++) {
+        memcpy(actual_data, data_array[i], size_array[i]);
+        actual_data += size_array[i];
+    }
+    *out_data_size = buffer_size;
+
+    CLEAN_UP:
+    for (int i = 0; i < size; i++)
+        free(data_array[i]);
+
+    return err;
 }
 
