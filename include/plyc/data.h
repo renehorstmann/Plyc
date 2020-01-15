@@ -15,8 +15,10 @@ extern "C" {
  * The parameter max_list_size sets the maximum list_size for a list property.
  * All lists use parsed memory with the max_list_size, to get the feature of striding over a complete list.
  * (Next property is always x bytes behind the start of any list).
- * If an error occurs (such that the given memory size is to small,
- * an ply_err will be set as return value.
+ * @param ply_data: The ply file data as string/memory.
+ * @param ply_data_size: The size of the string/memory.
+ * @param max_list_size: Maximal size of each property list. (meshes uses a size of 3 or 4 for triangle or quads).
+ * @return: A ply_err if an error occurs, such as memory size is too small.
  */
 ply_err ply_data_parse(ply_File *in_out_file,
                        const ply_byte *restrict ply_data, size_t ply_data_size,
@@ -24,8 +26,8 @@ ply_err ply_data_parse(ply_File *in_out_file,
 
 /**
  * Writes the data of the ply_File into an allocated memory array (out_data_on_heap + out_data_size) on the heap.
- * If an error occurs,
- * an ply_err will be set as return value.
+ * @param file: the filled up ply_File to write the data from.
+ * @return: A ply_err if an error occurs..
  */
 ply_err ply_data_write_to_heap(char **out_data_on_heap, size_t *out_data_size, ply_File file);
 
