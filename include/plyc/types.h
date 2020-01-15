@@ -21,7 +21,11 @@ extern "C" {
 /** ply_err for successful operation (NULL pointer) */
 #define PLY_Success (ply_err) 0
 
-// Macro to set err and jump to a label
+/** Macro to set err and jump to a label.
+ * @param err: ply_err to set.
+ * @param set: the message to set in err (err = set).
+ * @param label: the label to jump to (goto label).
+ */
 #define PlySetErrGoto(err, set, label) { (err) = (set); goto label; }
 
 /**
@@ -62,13 +66,23 @@ enum ply_type {
     PLY_TYPE_NUM_ELEMENTS
 };
 
-/** Returns the sizeof the ply tpye */
+/** Returns the sizeof the ply type. */
 int ply_type_size(enum ply_type type);
 
-/** Converts any type to a float */
+/**
+ * Converts any type to a float.
+ * @param data: A pointer to the source value.
+ * @param type: The type of the source value.
+ * @return: The source value casted to a float.
+ */
 float ply_type_to_float(const ply_byte *data, enum ply_type type);
 
-/** Converts any type to an int */
+/**
+ * Converts any type to an int.
+ * @param data: A pointer to the source value.
+ * @param type: The type of the source value.
+ * @return: The source value casted to a int.
+ */
 int ply_type_to_int(const ply_byte *data, enum ply_type type);
 
 /**
