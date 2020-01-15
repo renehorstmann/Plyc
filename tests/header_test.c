@@ -1,40 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "plyc/header.h"
+#include "test_helper.h"
 
-static int err(char *msg, const char *ret) {
-    fprintf(stderr, "%s : <%s>\n", msg, ret);
-    return 1;
-}
-
-static char *open_file_as_string(const char *filename) {
-    char *text = NULL;
-    FILE *file = fopen(filename, "r");
-    if (file) {
-        fseek(file, 0, SEEK_END);
-        long length = ftell(file);
-        fseek(file, 0, SEEK_SET);
-        text = malloc(length+1);
-        if (text) {
-            size_t chars_read = fread(text, 1, length, file);
-            if(chars_read != length)
-                fprintf(stderr, "open file warning, didnt read enough characters!\n");
-            text[length] = '\0';
-        }
-        fclose(file);
-    }
-    return text;
-}
 
 int main() {
     ply_err ret;
 
     // header test 1
     {
-        char *header_text = open_file_as_string("header_1.txt");
-        if(!header_text)
+        char *header_text, *header_end;
+        open_file_as_string(&header_text, &header_end, "header_1.txt");
+        if (!header_text)
             return err("failed to load header 1", "");
 
         ply_File header;
@@ -90,17 +65,18 @@ int main() {
         if (ret)
             return err("header test 1 failed to write", ret);
         size_t len = strlen(header_text);
-        if(len != strlen(written_header)-1) // without newline
+        if (len != strlen(written_header) - 1) // without newline
             return err("header test 1 failed to write, different result size", "");
         int s = strncmp(header_text, written_header, len);
-        if (s!= 0)
+        if (s != 0)
             return err("header test 1 failed to write, different result", "");
     }
 
     // header test 2
     {
-        char *header_text = open_file_as_string("header_2.txt");
-        if(!header_text)
+        char *header_text, *header_end;
+        open_file_as_string(&header_text, &header_end, "header_2.txt");
+        if (!header_text)
             return err("failed to load header 2", "");
 
         ply_File header;
@@ -171,10 +147,10 @@ int main() {
         if (ret)
             return err("header test 2 failed to write", ret);
         size_t len = strlen(header_text);
-        if(len != strlen(written_header)-1) // without newline
+        if (len != strlen(written_header) - 1) // without newline
             return err("header test 2 failed to write, different result size", "");
         int s = strncmp(header_text, written_header, len);
-        if (s!= 0)
+        if (s != 0)
             return err("header test 2 failed to write, different result", "");
     }
 
@@ -182,8 +158,9 @@ int main() {
 
     // header test 3
     {
-        char *header_text = open_file_as_string("header_3.txt");
-        if(!header_text)
+        char *header_text, *header_end;
+        open_file_as_string(&header_text, &header_end, "header_3.txt");
+        if (!header_text)
             return err("failed to load header 3", "");
 
         ply_File header;
@@ -232,8 +209,9 @@ int main() {
             || header.elements[1].properties[0].type != PLY_TYPE_INT)
             return err("header test 3 failed, element 1 property type wrong", "");
 
-        header_text = open_file_as_string("header_3_res.txt"); // float32 -> float
-        if(!header_text)
+
+        open_file_as_string(&header_text, &header_end, "header_3_res.txt"); // float32 -> float
+        if (!header_text)
             return err("failed to load header 3 res", "");
 
         char *written_header;
@@ -241,14 +219,14 @@ int main() {
         if (ret)
             return err("header test 3 failed to write", ret);
         size_t len = strlen(header_text);
-        if(len != strlen(written_header)-1) // without newline
+        if (len != strlen(written_header) - 1) // without newline
             return err("header test 3 failed to write, different result size", "");
         int s = strncmp(header_text, written_header, len);
-        if (s!= 0)
+        if (s != 0)
             return err("header test 3 failed to write, different result", "");
     }
-    
-    
+
+
     // header fail test 1
     {
         char *header_text = "plx\n....";
@@ -281,8 +259,9 @@ int main() {
 
     // header fail test 4
     {
-        char *header_text = open_file_as_string("header_fail_4.txt");
-        if(!header_text)
+        char *header_text, *header_end;
+        open_file_as_string(&header_text, &header_end, "header_fail_4.txt");
+        if (!header_text)
             return err("failed to load header fail 4", "");
 
         ply_File header;
@@ -293,8 +272,9 @@ int main() {
 
     // header fail test 5
     {
-        char *header_text = open_file_as_string("header_fail_5.txt");
-        if(!header_text)
+        char *header_text, *header_end;
+        open_file_as_string(&header_text, &header_end, "header_fail_5.txt");
+        if (!header_text)
             return err("failed to load header fail 5", "");
 
         ply_File header;

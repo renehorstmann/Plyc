@@ -1,46 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <stdint.h>
-#include <stdbool.h>
-
 #include "plyc/header.h"
 #include "plyc/data.h"
+#include "test_helper.h"
 
 #define struct_packed struct __attribute__((__packed__))
 
-static int err(char *msg, const char *ret) {
-    fprintf(stderr, "%s : <%s>\n", msg, ret);
-    return 1;
-}
-
-static void open_file_as_string(char **start, char **end, const char *filename) {
-    char *text = NULL;
-    long length = 0;
-    FILE *file = fopen(filename, "r");
-    if (file) {
-        fseek(file, 0, SEEK_END);
-        length = ftell(file);
-        fseek(file, 0, SEEK_SET);
-        text = malloc(length + 1);
-        if (text) {
-            size_t chars_read = fread(text, 1, length, file);
-            if (chars_read != length)
-                fprintf(stderr, "open file warning, didnt read enough characters!\n");
-            text[length] = '\0';
-        }
-        fclose(file);
-    }
-    *start = text;
-    *end = text + length;
-}
-
-static bool flt_eq(float a, float b) {
-    if (isnan(a) && isnan(b))
-        return true;
-    return fabsf(a - b) < 0.001f;
-}
 
 int main() {
     ply_err ret;
@@ -80,8 +43,8 @@ int main() {
 
         for (int i = 0; i < 2; i++) {
             if (!flt_eq(data[i].x, exp_res[i].x)
-                  || !flt_eq(data[i].y, exp_res[i].y)
-                  || !flt_eq(data[i].z, exp_res[i].z))
+                || !flt_eq(data[i].y, exp_res[i].y)
+                || !flt_eq(data[i].z, exp_res[i].z))
                 return err("data test 1 failed, wrong expected result", "");
         }
 
@@ -217,8 +180,8 @@ int main() {
             float x, y, z;
         };
 
-        ret = ply_data_parse(&file, ply_data, data_end - ply_data,8);
-        if (strcmp(ret,"Data buffer is too small") != 0)
+        ret = ply_data_parse(&file, ply_data, data_end - ply_data, 8);
+        if (strcmp(ret, "Data buffer is too small") != 0)
             return err("data fail test 4 failed, parsing list_data failed", ret);
     }
 

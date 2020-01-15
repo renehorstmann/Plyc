@@ -1,25 +1,7 @@
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
-
-#include <stdbool.h>
-#include <stdint.h>
-
 #include "plyc/ply.h"
+#include "test_helper.h"
 
 #define struct_packed struct __attribute__((__packed__))
-
-static int err(const char *msg, const char *ret) {
-    fprintf(stderr, "%s : <%s>\n", msg, ret);
-    return 1;
-}
-
-
-static bool flt_eq(float a, float b) {
-    if (isnan(a) == isnan(b))
-        return true;
-    return fabsf(a - b) < 0.001f;
-}
 
 
 int main() {
@@ -69,12 +51,12 @@ int main() {
         char *written_begin;
         size_t written_size;
         ret = ply_write_memory_into_heap(&written_begin, &written_size, file);
-        if(ret) return err("write_memory 1 failed", ret);
+        if (ret) return err("write_memory 1 failed", ret);
 
         ply_File_kill(&file);
 
         ret = ply_parse_memory(&file, written_begin, written_size, 0);
-        if(ret) return err("parse_memory 1 failed", ret);
+        if (ret) return err("parse_memory 1 failed", ret);
 
         free(written_begin);
 
@@ -176,8 +158,8 @@ int main() {
 
 
         struct_packed list {
-                uint8_t num;
-                int32_t element[8];
+            uint8_t num;
+            int32_t element[8];
         };
 
         struct list exp_list_res[12] = {
@@ -197,11 +179,11 @@ int main() {
 
         for (int i = 0; i < face->num; i++) {
             uint8_t *size = (uint8_t *) (vertex_index->data + vertex_index->offset + vertex_index->stride * i);
-            if(*size != exp_list_res[i].num)
+            if (*size != exp_list_res[i].num)
                 return err("load_file 2 failed, wrond list num", "");
             size++;
             int *data = (int *) size;
-            for(int item=0; item<8; item++) {
+            for (int item = 0; item < 8; item++) {
                 if (*data != exp_list_res[i].element[item])
                     return err("load_file 2 failed, list value wrong", "");
                 data++;

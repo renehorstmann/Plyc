@@ -1,31 +1,5 @@
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
-
-
 #include "plyc/simple.h"
-
-
-static bool vec_check(const float *a, const float *b, int n, float eps) {
-    for (int i = 0; i < n; i++) {
-        if (isnan(b[i]) != isnan(a[i]) || fabsf(a[i] - b[i]) > eps)
-            return true;
-    }
-    return false;
-}
-
-static bool veci_check(const int *a, const int *b, int n) {
-    for (int i = 0; i < n; i++) {
-        if (a[i] != b[i])
-            return true;
-    }
-    return false;
-}
-
-static int err(const char *msg, const char *ret) {
-    fprintf(stderr, "%s : <%s>\n", msg, ret);
-    return 1;
-}
+#include "test_helper.h"
 
 
 int main() {
@@ -38,7 +12,7 @@ int main() {
         if (ret) return err("simple_load 1 failed", ret);
         if (simple.num != 2)
             return err("simple_load 1 failed, wrong loaded data fields", "");
-        if(!simple.holds_heap_memory_)
+        if (!simple.holds_heap_memory_)
             return err("simple_load 1 failed, holds heap memory should be true", "");
         if (simple.normals || simple.colors || simple.indices || simple.indices_size != 0 || simple.comments_size != 0)
             return err("simple_load 1 failed, should only have points", "");
