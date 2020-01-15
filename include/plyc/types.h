@@ -6,22 +6,40 @@ extern "C" {
 
 #include <stdlib.h>
 
+/** Maximal name length for an header item */
 #define PLY_MAX_NAME_LENGTH 32
+/** Maximal amount of properties for each element */
 #define PLY_MAX_PROPERTIES 16
+/** Maximal amount of elements */
 #define PLY_MAX_ELEMENTS 8
+/** Maximal size of a line comment -> 127 chars + \0 */
 #define PLY_MAX_COMMENT_LENGTH 128
+/** Maximal amount of comment lines in the header file */
 #define PLY_MAX_COMMENTS 8
 
-/** ply_err for successful operation, is a NULL pointer */
+
+/** ply_err for successful operation (NULL pointer) */
 #define PLY_Success (ply_err) 0
 
 // Macro to set err and jump to a label
 #define PlySetErrGoto(err, set, label) { (err) = (set); goto label; }
 
-
+/**
+ * An ply error is a pointer to a stack string.
+ * If an error occurs, the user can print the error message and also see it directly in the debug session.
+ * @example:
+ * ply_err err = ply_example_function();
+ * if(err) {
+ *      fprintf(stderr, "error: %s", err);
+ *      exit(EXIT_FAILURE);
+ * }
+ */
 typedef const char *ply_err;
+
+/** Simple type redefinition to distinguish between characters and bytes */
 typedef char ply_byte;
 
+/** Enumeration of usable ply file formats */
 enum ply_format {
     PLY_FORMAT_NONE,
     PLY_FORMAT_ASCII,
@@ -30,6 +48,7 @@ enum ply_format {
     PLY_FORMAT_NUM_ELEMENTS
 };
 
+/** Enumeration of all usable ply value types */
 enum ply_type {
     PLY_TYPE_NONE,
     PLY_TYPE_CHAR,
@@ -43,12 +62,21 @@ enum ply_type {
     PLY_TYPE_NUM_ELEMENTS
 };
 
+/** Returns the sizeof the ply tpye */
 int ply_type_size(enum ply_type type);
 
+/** Converts any type to a float */
 float ply_type_to_float(const ply_byte *data, enum ply_type type);
 
+/** Converts any type to an int */
 int ply_type_to_int(const ply_byte *data, enum ply_type type);
 
+/**
+ * Autotype struct for a ply property.
+ * If the property is a list property, list_type is not PLY_TYPE_NONE and defines the type for the list size.
+ * If the property is completely parsed (header + data), the data, offset and stride members are filled,
+ * so one can use them to iterate over the data (data + offset + stride * i).
+ */
 typedef struct {
     char name[PLY_MAX_NAME_LENGTH];
     enum ply_type list_type;
@@ -58,6 +86,10 @@ typedef struct {
     int stride;
 } plyproperty;
 
+/**
+ * Autotype struct for a ply element.
+ * An element exist of a number of points and a list of ply properties.
+ */
 typedef struct {
     char name[PLY_MAX_NAME_LENGTH];
     size_t num;
@@ -65,8 +97,15 @@ typedef struct {
     size_t properties_size;
 } plyelement;
 
+/** Returns the ply property with the given name, or NULL if not found */
 plyproperty *plyelement_get_property(plyelement *self, const char *property_name);
 
+/**
+ * Class struct for a parsed ply file.
+ * The file contains all needed information and a list of elements and comments.
+ * In the field parsed_data_on_heap_ is the complete parsed data of the ply file.
+ * Because this field uses an heap array, one must call ply_File_kill after usage.
+ */
 typedef struct {
     enum ply_format format;
     char comments[PLY_MAX_COMMENTS][PLY_MAX_COMMENT_LENGTH];
@@ -76,9 +115,10 @@ typedef struct {
     ply_byte *parsed_data_on_heap_;
 } ply_File;
 
-
+/** Destructor of the ply file (to free field parsed_data_on_heap_) */
 void ply_File_kill(ply_File *self);
 
+/** Returns the ply element with the given name, or NULL if not found */
 plyelement *ply_File_get_element(ply_File *self, const char *element_name);
 
 
