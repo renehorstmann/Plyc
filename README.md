@@ -12,7 +12,18 @@ cmake ..
 make
 ctest         # runs the tests
 make install  # as root or with sudo make install
+```
 
+To link your project with the installed library, take a look at the [CMakeLists.txt](examples/CMakeLists.txt) example file:
+```cmake
+# your project target (e. g. myproject)
+add_executable(myproject source.c)
+
+# find the plyc library
+find_library(PLYC_LIB plyc)
+
+# link to the plyc library
+target_link_libraries(myproject ${PLYC_LIB})
 ```
 
 ## Overview
