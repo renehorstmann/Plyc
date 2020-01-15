@@ -17,6 +17,8 @@ ply_err ply_header_get_end(char **out_header_end, const char *header_text);
 
 /**
  * Parses the header, loaded from a ply file to memory.
+ * The header information will be set to the ply_File out_header.
+ * All other fields will be set to zero (data fields such as data, offset, stride, ...).
  * If an error occurs (such that the given file is not a ply file),
  * an ply_err will be set as return value.
  */
@@ -24,7 +26,7 @@ ply_err ply_header_parse(ply_File *out_header, const char *header_text);
 
 
 /**
- * Writes the header into an allocated string on the heap.
+ * Writes the header of the ply_File into an allocated string on the heap.
  * If an error occurs,
  * an ply_err will be set as return value.
  */
