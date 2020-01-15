@@ -6,13 +6,40 @@ extern "C" {
 
 #include "types.h"
 
-
+/**
+ * Loads and parses a .ply file from a file.
+ * A call to this function is enough to load the header and parse the data.
+ * After loading and using the ply_File, it should be destructed with a call to ply_File_kill.
+ * @param filename: The file destination.
+ * @param max_list_size: Maximal size of each property list. (meshes uses a size of 3 or 4 for triangle or quads).
+ * @return: A ply_err if an error occurs, such as file not found.
+ */
 ply_err ply_load_file(ply_File *out_file, const char *filename, int max_list_size);
 
+/**
+ * Parses a .ply file from a string/memory.
+ * A call to this function is enough to load the header and parse the data.
+ * After loading and using the ply_File, it should be destructed with a call to ply_File_kill.
+ * @param ply_file_text: The string/memory that holds the whole .ply file content.
+ * @param ply_file_text_size: The size of the string/memory.
+ * @param max_list_size: Maximal size of each property list. (meshes uses a size of 3 or 4 for triangle or quads).
+ * @return: A ply_err if an error occurs.
+ */
 ply_err ply_parse_memory(ply_File *out_file, const char *ply_file_text, size_t ply_file_text_size, int max_list_size);
 
+/**
+ * Writes and saves a .ply file to a file.
+ * @param file: The filled out ply_File.
+ * @param filename: The file destination to save the .ply file.
+ * @return: A ply_err if an error occurs, such as file permission error.
+ */
 ply_err ply_save_file(ply_File file, const char *filename);
 
+/**
+ * Writes and a .ply file to an allocated memory on heap (out_data_on_heap + out_data_size).
+ * @param file: The filled out ply_File.
+ * @return: A ply_err if an error occurs.
+ */
 ply_err ply_write_memory_into_heap(char **out_data_on_heap, size_t *out_size, ply_File file);
 
 
