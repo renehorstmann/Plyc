@@ -1,9 +1,8 @@
 # Plyc
-A simple ANSI C library to load and save a .ply file with any desired data, written in C.
+A simple ANSI C library to load and save a .ply file with any desired data.
 
 ## Getting Started
-Copy the library to your system, compile and install it.
-The library is written in C (tested on GCC 7.4.0).
+Copy the library to your system, compile and install it (tested on GCC 7.4.0).
 If cloned:
 ```shell script
 mkdir build
