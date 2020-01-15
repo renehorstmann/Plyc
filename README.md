@@ -1,12 +1,26 @@
 # Plyc
 A simple C library to load and save a .ply file with any desired data, written in C.
 
+## Getting Started
+Copy the library to your system and compile and install it.
+The library is written in C (tested on GCC 7.4.0).
+If cloned:
+```shell script
+mkdir build
+cd build
+cmake ..
+make
+make install  # as root or with sudo make install
 
-## TODO
+```
 
-+ bindings
-  - Python3 (numpy)
-
+## Overview
+The following public header are available in plyc/
++ [plyc/simple.h](include/plyc/simple.h) Simple way to load and save a .ply file as a point cloud or a mesh.
++ [plyc/ply.h](include/plyc/ply.h) Advanced parse and write a .ply file with any desired data.
++ [plyc/header.h](include/plyc/header.h) Parse the header text of a .ply file.
++ [plyc/data.h](include/plyc/data.h) Parse the data of a .ply file.
++ [plyc/types.h](include/plyc/types.h) All structs, types and constants needed for the functions.
 
 ## Examples
 
@@ -288,3 +302,10 @@ int main() {
     ply_File_kill(&plyfile);
 }
 ```
+## Author
+
+* **René Horstmann**
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
