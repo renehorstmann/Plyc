@@ -46,20 +46,20 @@ ply_err ply_simple_load(ply_Simple *out_simple,
         PlySetErrGoto(err, "Wrong number of elements, should be 1 or 2", CLEAN_UP)
     }
 
-    plyelement *vertex = &file.elements[0];
-    plyelement *face = NULL;
+    ply_element *vertex = &file.elements[0];
+    ply_element *face = NULL;
     if (file.elements_size == 2)
         face = &file.elements[1];
 
-    plyproperty *x = plyelement_get_property(vertex, "x");
-    plyproperty *y = plyelement_get_property(vertex, "y");
-    plyproperty *z = plyelement_get_property(vertex, "z");
-    plyproperty *nx = plyelement_get_property(vertex, "nx");;
-    plyproperty *ny = plyelement_get_property(vertex, "ny");;
-    plyproperty *nz = plyelement_get_property(vertex, "nz");;
-    plyproperty *r = plyelement_get_property(vertex, "red");
-    plyproperty *g = plyelement_get_property(vertex, "green");
-    plyproperty *b = plyelement_get_property(vertex, "blue");
+    ply_property *x = plyelement_get_property(vertex, "x");
+    ply_property *y = plyelement_get_property(vertex, "y");
+    ply_property *z = plyelement_get_property(vertex, "z");
+    ply_property *nx = plyelement_get_property(vertex, "nx");;
+    ply_property *ny = plyelement_get_property(vertex, "ny");;
+    ply_property *nz = plyelement_get_property(vertex, "nz");;
+    ply_property *r = plyelement_get_property(vertex, "red");
+    ply_property *g = plyelement_get_property(vertex, "green");
+    ply_property *b = plyelement_get_property(vertex, "blue");
 
     if (!x || !y || !z) {
         PlySetErrGoto(err, "XYZ are missing in the ply file", CLEAN_UP)
@@ -105,7 +105,7 @@ ply_err ply_simple_load(ply_Simple *out_simple,
     }
 
     if (face && face->properties_size == 1 && face->properties[0].list_type != PLY_TYPE_NONE) {
-        plyproperty *indices = &face->properties[0];
+        ply_property *indices = &face->properties[0];
         Vec3iArray array = {0};
         Vec3iArray_set_capacity(&array, face->num);
         if (array.array) {

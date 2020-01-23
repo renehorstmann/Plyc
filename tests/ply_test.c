@@ -17,15 +17,15 @@ int main() {
             return err("load_file 1 failed, wrong format", "");
         if (file.elements_size != 1)
             return err("load_file 1 failed, wrong elements_size", "");
-        plyelement *vertex = ply_File_get_element(&file, "vertex");
+        ply_element *vertex = ply_File_get_element(&file, "vertex");
         if (!vertex)
             return err("load_file 1 failed, vertex element not found", "");
         if (vertex->num != 2 || vertex->properties_size != 3)
             return err("load_file 1 failed, vertex data is wrong (num, props)", "");
 
-        plyproperty *x = plyelement_get_property(vertex, "x");
-        plyproperty *y = plyelement_get_property(vertex, "y");
-        plyproperty *z = plyelement_get_property(vertex, "z");
+        ply_property *x = plyelement_get_property(vertex, "x");
+        ply_property *y = plyelement_get_property(vertex, "y");
+        ply_property *z = plyelement_get_property(vertex, "z");
         if (!x || !y || !z)
             return err("load_file 1 failed, one of xyz properties not found", "");
         if (x != &vertex->properties[0] || y != &vertex->properties[1] || z != &vertex->properties[2])
@@ -41,7 +41,7 @@ int main() {
 
         for (int i = 0; i < vertex->num; i++) {
             for (int xyz = 0; xyz < 3; xyz++) {
-                plyproperty *prop = &vertex->properties[xyz];
+                ply_property *prop = &vertex->properties[xyz];
                 float *value = (float *) (prop->data + prop->offset + prop->stride * i);
                 if (!flt_eq(*value, points[i][xyz]))
                     return err("load_file 1 failed, value wrong", "");
@@ -85,7 +85,7 @@ int main() {
 
         for (int i = 0; i < vertex->num; i++) {
             for (int xyz = 0; xyz < 3; xyz++) {
-                plyproperty *prop = &vertex->properties[xyz];
+                ply_property *prop = &vertex->properties[xyz];
                 float *value = (float *) (prop->data + prop->offset + prop->stride * i);
                 if (!flt_eq(*value, points[i][xyz]))
                     return err("load_file 1 failed, value wrong", "");
@@ -104,15 +104,15 @@ int main() {
             return err("load_file 2 failed, wrong format", "");
         if (file.elements_size != 2)
             return err("load_file 2 failed, wrong elements_size", "");
-        plyelement *vertex = ply_File_get_element(&file, "vertex");
+        ply_element *vertex = ply_File_get_element(&file, "vertex");
         if (!vertex)
             return err("load_file 2 failed, vertex element not found", "");
         if (vertex->num != 8 || vertex->properties_size != 3)
             return err("load_file 2 failed, vertex data is wrong (num, props)", "");
 
-        plyproperty *x = plyelement_get_property(vertex, "x");
-        plyproperty *y = plyelement_get_property(vertex, "y");
-        plyproperty *z = plyelement_get_property(vertex, "z");
+        ply_property *x = plyelement_get_property(vertex, "x");
+        ply_property *y = plyelement_get_property(vertex, "y");
+        ply_property *z = plyelement_get_property(vertex, "z");
         if (!x || !y || !z)
             return err("load_file 2 failed, one of xyz properties not found", "");
         if (x != &vertex->properties[0] || y != &vertex->properties[1] || z != &vertex->properties[2])
@@ -136,20 +136,20 @@ int main() {
 
         for (int i = 0; i < vertex->num; i++) {
             for (int xyz = 0; xyz < 3; xyz++) {
-                plyproperty *prop = &vertex->properties[xyz];
+                ply_property *prop = &vertex->properties[xyz];
                 float *value = (float *) (prop->data + prop->offset + prop->stride * i);
                 if (!flt_eq(*value, points[i][xyz]))
                     return err("load_file 2 failed, value wrong", "");
             }
         }
 
-        plyelement *face = ply_File_get_element(&file, "face");
+        ply_element *face = ply_File_get_element(&file, "face");
         if (!face)
             return err("load_file 2 failed, face element not found", "");
         if (face->num != 12 || face->properties_size != 1)
             return err("load_file 2 failed, face data is wrong (num, props)", "");
 
-        plyproperty *vertex_index = plyelement_get_property(face, "vertex_index");
+        ply_property *vertex_index = plyelement_get_property(face, "vertex_index");
         if (!vertex_index)
             return err("load_file 2 failed, vertex_index property not found", "");
 

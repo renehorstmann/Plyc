@@ -76,7 +76,7 @@ static void write_list(CharArray *array, enum ply_type list_type, enum ply_type 
 }
 
 static ply_err write_element_to_heap(char **out_element_on_heap, size_t *out_element_size,
-                                     plyelement element, enum ply_format format) {
+                                     ply_element element, enum ply_format format) {
     CharArray array = {0};
     CharArray_set_capacity(&array, element.num * element.properties_size);  // minimal size as start size
     if (!array.array)
@@ -84,7 +84,7 @@ static ply_err write_element_to_heap(char **out_element_on_heap, size_t *out_ele
 
     for (size_t i = 0; i < element.num; i++) {
         for (size_t p = 0; p < element.properties_size; p++) {
-            plyproperty *property = &element.properties[p];
+            ply_property *property = &element.properties[p];
             const ply_byte *data = property->data + property->offset + property->stride * i;
 
             if (property->list_type == PLY_TYPE_NONE) {

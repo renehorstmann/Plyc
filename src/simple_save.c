@@ -15,14 +15,14 @@ ply_File header_from_simple(ply_Simple simple, enum ply_format format) {
     memcpy(header.comments, simple.comments, sizeof(simple.comments));
 
     header.elements_size = 1;
-    plyelement *vertex = &header.elements[0];
+    ply_element *vertex = &header.elements[0];
     strcpy(vertex->name, "vertex");
     vertex->num = simple.num;
 
     vertex->properties_size = 0;
     for (int i = 0; i < 3; i++) {
         int index = vertex->properties_size++;
-        plyproperty *property = &vertex->properties[index];
+        ply_property *property = &vertex->properties[index];
         strcpy(property->name, (const char *[]) {"x", "y", "z"}[i]);
         property->list_type = PLY_TYPE_NONE;
         property->type = PLY_TYPE_FLOAT;
@@ -34,7 +34,7 @@ ply_File header_from_simple(ply_Simple simple, enum ply_format format) {
     if (simple.normals) {
         for (int i = 0; i < 3; i++) {
             int index = vertex->properties_size++;
-            plyproperty *property = &vertex->properties[index];
+            ply_property *property = &vertex->properties[index];
             strcpy(property->name, (const char *[]) {"nx", "ny", "nz"}[i]);
             property->list_type = PLY_TYPE_NONE;
             property->type = PLY_TYPE_FLOAT;
@@ -47,7 +47,7 @@ ply_File header_from_simple(ply_Simple simple, enum ply_format format) {
     if (simple.colors) {
         for (int i = 0; i < 3; i++) {
             int index = vertex->properties_size++;
-            plyproperty *property = &vertex->properties[index];
+            ply_property *property = &vertex->properties[index];
             strcpy(property->name, (const char *[]) {"red", "green", "blue"}[i]);
             property->list_type = PLY_TYPE_NONE;
             property->type = PLY_TYPE_FLOAT;
@@ -59,11 +59,11 @@ ply_File header_from_simple(ply_Simple simple, enum ply_format format) {
 
     if (simple.indices && simple.indices_size > 0) {
         header.elements_size = 2;
-        plyelement *face = &header.elements[1];
+        ply_element *face = &header.elements[1];
         strcpy(face->name, "face");
         face->num = simple.indices_size;
         face->properties_size = 1;
-        plyproperty *vertex_indices = &face->properties[0];
+        ply_property *vertex_indices = &face->properties[0];
         strcpy(vertex_indices->name, "vertex_indices");
         vertex_indices->list_type = PLY_TYPE_UCHAR;
         vertex_indices->type = PLY_TYPE_INT;

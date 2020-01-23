@@ -98,7 +98,7 @@ typedef struct {
     ply_byte *data;
     int offset;
     int stride;
-} plyproperty;
+} ply_property;
 
 /**
  * Autotype struct for a ply element.
@@ -107,12 +107,12 @@ typedef struct {
 typedef struct {
     char name[PLY_MAX_NAME_LENGTH];
     size_t num;
-    plyproperty properties[PLY_MAX_PROPERTIES];
+    ply_property properties[PLY_MAX_PROPERTIES];
     size_t properties_size;
-} plyelement;
+} ply_element;
 
 /** Returns the ply property with the given name, or NULL if not found */
-plyproperty *plyelement_get_property(plyelement *self, const char *property_name);
+ply_property *plyelement_get_property(ply_element *self, const char *property_name);
 
 /**
  * Class struct for a parsed ply file.
@@ -124,7 +124,7 @@ typedef struct {
     enum ply_format format;
     char comments[PLY_MAX_COMMENTS][PLY_MAX_COMMENT_LENGTH];
     size_t comments_size;
-    plyelement elements[PLY_MAX_ELEMENTS];
+    ply_element elements[PLY_MAX_ELEMENTS];
     size_t elements_size;
     ply_byte *parsed_data_on_heap_;
 } ply_File;
@@ -133,7 +133,7 @@ typedef struct {
 void ply_File_kill(ply_File *self);
 
 /** Returns the ply element with the given name, or NULL if not found */
-plyelement *ply_File_get_element(ply_File *self, const char *element_name);
+ply_element *ply_File_get_element(ply_File *self, const char *element_name);
 
 
 #ifdef __cplusplus

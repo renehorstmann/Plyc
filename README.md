@@ -239,7 +239,7 @@ int main() {
     puts("");
 
     // get access to an element
-    plyelement *vertex;
+    ply_element *vertex;
 
     // option 1:
     vertex = &plyfile.elements[0];
@@ -260,7 +260,7 @@ int main() {
 
 
     // get access to some properties
-    plyproperty *x, *y, *z;
+    ply_property *x, *y, *z;
 
     // option 1:
     x = &vertex->properties[0];

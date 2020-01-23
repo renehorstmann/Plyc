@@ -3,8 +3,8 @@
 #include "plyc/utilc/strviu.h"
 #include "plyc/header.h"
 
-static ply_err parse_element(plyelement *out_element, strviu viu) {
-    memset(out_element, 0, sizeof(plyelement));
+static ply_err parse_element(ply_element *out_element, strviu viu) {
+    memset(out_element, 0, sizeof(ply_element));
 
     strviu name, num;
 
@@ -51,8 +51,8 @@ static enum ply_type parse_type(strviu viu) {
     return PLY_TYPE_NONE;
 }
 
-static ply_err parse_property(plyproperty *out_property, strviu viu) {
-    memset(out_property, 0, sizeof(plyproperty));
+static ply_err parse_property(ply_property *out_property, strviu viu) {
+    memset(out_property, 0, sizeof(ply_property));
 
     if (sv_begins_with_cstring(viu, "list ")) {
         viu.begin += strlen("list ");
@@ -130,7 +130,7 @@ ply_err ply_header_parse(ply_File *out_header, const char *header_text) {
     viu = sv_lstrip(viu, ' ');
 
     // now each line could be one of [comment, element, property] (property before element is an error)
-    plyelement *actual_element = NULL;
+    ply_element *actual_element = NULL;
 
     while (viu.begin < viu.end) {
         strviu line = sv_next_split(viu, '\n');
@@ -173,7 +173,7 @@ ply_err ply_header_parse(ply_File *out_header, const char *header_text) {
                 return "Property error, too many properties";
             line.begin += strlen("property ");
             line = sv_lstrip(line, ' ');
-            plyproperty *actual_property = &actual_element->properties[actual_element->properties_size++];
+            ply_property *actual_property = &actual_element->properties[actual_element->properties_size++];
             ply_err err = parse_property(actual_property, line);
             if (err)
                 return err;
