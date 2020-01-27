@@ -6,6 +6,7 @@
 typedef struct intiterator {
     char impl[32]; // impl max size = 32 bytes
     int *end;
+    const int *(*get)(struct intiterator *self);
     const int *(*next)(struct intiterator *self);
 } intiterator;
 
@@ -16,16 +17,20 @@ struct intiterator_range_s_ {
     int end;
 };
 
-static const int *intiterator_range_next_(intiterator *self) {
+static const int *intiterator_range_get_(intiterator *self) {
     struct intiterator_range_s_ *impl = (struct intiterator_range_s_ *) self->impl;
-    impl->i+=impl->step;
     return impl->i < impl->end ? &impl->i : NULL;
 }
 
-static const int *intiterator_range_reverse_next_(intiterator *self) {
+static const int *intiterator_range_reverse_get_(intiterator *self) {
+    struct intiterator_range_s_ *impl = (struct intiterator_range_s_ *) self->impl;
+    return impl->i > impl->end ? &impl->i : NULL;
+}
+
+static const int *intiterator_range_next_(intiterator *self) {
     struct intiterator_range_s_ *impl = (struct intiterator_range_s_ *) self->impl;
     impl->i+=impl->step;
-    return impl->i > impl->end ? &impl->i : NULL;
+    return self->get(self);
 }
 
 /**
@@ -38,12 +43,12 @@ static const int *intiterator_full_range_begin(intiterator *self, int start, int
     impl->step = step;
     impl->end = end;
     self->end = NULL;
-    if(impl->step >=0) {
-        self->next = &intiterator_range_next_;
-        return impl->i < impl->end ? &impl->i : NULL;
-    }
-    self->next = &intiterator_range_reverse_next_;
-    return impl->i > impl->end ? &impl->i : NULL;
+    if(impl->step >=0)
+        self->get = &intiterator_range_get_;
+    else
+        self->get = &intiterator_range_reverse_get_;
+    self->next = &intiterator_range_next_;
+    return self->get(self);
 }
 
 /**
@@ -56,7 +61,10 @@ static const int *intiterator_range_begin(intiterator *self, int end) {
 
 
 
-
+static const int *intiterator_indices_get_(intiterator *self) {
+    int **index = (int **) self->impl;
+    return *index;
+}
 
 static const int *intiterator_indices_next_(intiterator *self) {
     int **index = (int **) self->impl;
@@ -72,6 +80,7 @@ static const int *intiterator_indices_begin(intiterator *self, int *indices, int
     int **index = (int **) self->impl;
     *index = indices;
     self->end = indices + size;
+    self->get = &intiterator_indices_get_;
     self->next = &intiterator_indices_next_;
     return *index;
 }
