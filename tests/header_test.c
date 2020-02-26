@@ -70,6 +70,9 @@ int main() {
         int s = strncmp(header_text, written_header, len);
         if (s != 0)
             return err("header test 1 failed to write, different result", "");
+
+        free(header_text);
+        free(written_header);
     }
 
     // header test 2
@@ -152,6 +155,9 @@ int main() {
         int s = strncmp(header_text, written_header, len);
         if (s != 0)
             return err("header test 2 failed to write, different result", "");
+
+        free(header_text);
+        free(written_header);
     }
 
 
@@ -209,7 +215,7 @@ int main() {
             || header.elements[1].properties[0].type != PLY_TYPE_INT)
             return err("header test 3 failed, element 1 property type wrong", "");
 
-
+        free(header_text);
         open_file_as_string(&header_text, &header_end, "header_3_res.txt"); // float32 -> float
         if (!header_text)
             return err("failed to load header 3 res", "");
@@ -224,6 +230,9 @@ int main() {
         int s = strncmp(header_text, written_header, len);
         if (s != 0)
             return err("header test 3 failed to write, different result", "");
+
+        free(header_text);
+        free(written_header);
     }
 
 
@@ -235,6 +244,8 @@ int main() {
         ret = ply_header_parse(&header, header_text);
         if (strcmp(ret, "Not a ply file") != 0)
             return err("header fail test 1 failed", ret);
+
+        ply_File_kill(&header);
     }
 
     // header fail test 2
@@ -245,6 +256,8 @@ int main() {
         ret = ply_header_parse(&header, header_text);
         if (strcmp(ret, "Could not find end_header") != 0)
             return err("header fail test 2 failed", ret);
+
+        ply_File_kill(&header);
     }
 
     // header fail test 3
@@ -255,6 +268,8 @@ int main() {
         ret = ply_header_parse(&header, header_text);
         if (strcmp(ret, "Error parsing format") != 0)
             return err("header fail test 3 failed", ret);
+
+        ply_File_kill(&header);
     }
 
     // header fail test 4
@@ -268,6 +283,9 @@ int main() {
         ret = ply_header_parse(&header, header_text);
         if (strcmp(ret, "Element error, could not parse num") != 0)
             return err("header fail test 4 failed", ret);
+
+        free(header_text);
+        ply_File_kill(&header);
     }
 
     // header fail test 5
@@ -281,6 +299,9 @@ int main() {
         ret = ply_header_parse(&header, header_text);
         if (strcmp(ret, "Property error, could not parse type") != 0)
             return err("header fail test 5 failed", ret);
+
+        free(header_text);
+        ply_File_kill(&header);
     }
 
     return 0;
