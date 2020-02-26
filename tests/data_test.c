@@ -48,6 +48,8 @@ int main() {
                 return err("data test 1 failed, wrong expected result", "");
         }
 
+        free(header_text);
+        ply_File_kill(&file);
     }
 
 
@@ -128,6 +130,9 @@ int main() {
                     return err("data test 2 failed, wrong expected list_data", "");
             }
         }
+
+        free(header_text);
+        ply_File_kill(&file);
     }
 
 
@@ -154,6 +159,7 @@ int main() {
         if (strcmp(ret, "Data parse error") != 0) // in ascii, the parsing fails
             return err("data fail test 3 failed, parsing data failed", ret);
 
+        free(header_text);
     }
 
 
@@ -183,6 +189,8 @@ int main() {
         ret = ply_data_parse(&file, ply_data, data_end - ply_data, 8);
         if (strcmp(ret, "Data buffer is too small") != 0)
             return err("data fail test 4 failed, parsing list_data failed", ret);
+
+        free(header_text);
     }
 
     return 0;
