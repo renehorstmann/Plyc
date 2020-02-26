@@ -229,6 +229,8 @@ int main() {
 
         ret = ply_simple_save(simple, "savetest_4.ply", PLY_FORMAT_ASCII);
         if (ret) return err("simple_save 4 failed", ret);
+
+        ply_Simple_kill(&simple);
     }
 
 }

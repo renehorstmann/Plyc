@@ -57,5 +57,6 @@ ply_err ply_write_memory_into_heap(char **out_data_on_heap, size_t *out_size, pl
     CLEAN_UP:
 
     free(header_text);
+    free(data_buffer);
     return err;
 }
