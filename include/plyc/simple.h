@@ -24,7 +24,7 @@ typedef int ply_vec3i[3];
  * The field holds_heap_memory_ is set to true, if the loaded data is allocated on the heap (from ply_simple_load).
  * If ply_Simple is loaded by ply_simple_load, destruct it after usage with ply_Simple_kill.
  */
-typedef struct {
+typedef struct ply_Simple {
     ply_vec4 *points;
     ply_vec4 *normals;
     ply_vec4 *colors;

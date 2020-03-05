@@ -91,7 +91,7 @@ int ply_type_to_int(const ply_byte *data, enum ply_type type);
  * If the property is completely parsed (header + data), the data, offset and stride members are filled,
  * so one can use them to iterate over the data (data + offset + stride * i).
  */
-typedef struct {
+typedef struct ply_property {
     char name[PLY_MAX_NAME_LENGTH];
     enum ply_type list_type;
     enum ply_type type;
@@ -104,7 +104,7 @@ typedef struct {
  * Autotype struct for a ply element.
  * An element exist of a number of points and a list of ply properties.
  */
-typedef struct {
+typedef struct ply_element {
     char name[PLY_MAX_NAME_LENGTH];
     size_t num;
     ply_property properties[PLY_MAX_PROPERTIES];
@@ -120,7 +120,7 @@ ply_property *plyelement_get_property(ply_element *self, const char *property_na
  * In the field parsed_data_on_heap_ is the complete parsed data of the ply file.
  * Because this field uses an heap array, one must call ply_File_kill after usage.
  */
-typedef struct {
+typedef struct ply_File {
     enum ply_format format;
     char comments[PLY_MAX_COMMENTS][PLY_MAX_COMMENT_LENGTH];
     size_t comments_size;

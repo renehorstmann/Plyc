@@ -26,20 +26,20 @@ static void sv__helper_swap_endian_(void *buf, int n) {
 #define ToStrViu(string) ((strviu){(char*)(string), (char*)(string)+strlen((string))})
 
 /** Data type for a string view instead of null termination, it uses an pointer to end (e. g. pointing to the 0) */
-typedef struct {
+typedef struct strviu {
     char *begin;
     char *end;
 } strviu;
 
 #define STRVIUARRAY_SIZE 128
 /** Data type to store multiple StrViu's, limited to STRVIUARRAY_SIZE */
-typedef struct {
+typedef struct strviuarray {
     strviu array[128];
     size_t size;
 } strviuarray;
 
 /** Data type to store multiple StrViu's */
-typedef struct {
+typedef struct StrViuArray {
     strviu *array;
     size_t size;
 } StrViuArray;

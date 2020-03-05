@@ -23,7 +23,7 @@ struct name ## _Item_ {\
     value_type value;\
     struct name ## _Item_ *next;\
 };\
-typedef struct {\
+typedef struct name {\
     struct name ## _Item_ **map;\
     int map_size;\
 } name;\
