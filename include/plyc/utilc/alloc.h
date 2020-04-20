@@ -54,3 +54,4 @@ static void free0(void **mem) {
 #define Free0(mem) free0((void **)&(mem))
 
 #endif //UTILC_ALLOC_H
+

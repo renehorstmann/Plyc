@@ -86,3 +86,4 @@ static const int *intiterator_indices_begin(intiterator *self, int *indices, int
 }
 
 #endif //UTILC_ITERATOR_H
+

@@ -505,3 +505,4 @@ static void sv_toupper(strviu viu) {
 
 
 #endif //UTILC_STRVIU_H
+
