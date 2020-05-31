@@ -4,13 +4,13 @@ A simple ANSI C library to load and save a .ply file with any desired data.
 ## Getting Started
 Copy the library to your system, compile and install it (tested on GCC 7.4.0).
 If cloned:
-```shell script
-mkdir build
-cd build
-cmake ..
-make
-ctest         # runs the tests
-make install  # as root or with sudo make install
+```bash
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+$ ctest         # runs the tests
+# make install  # as root or with sudo make install
 ```
 
 To link your project with the installed library, take a look at the [CMakeLists.txt](examples/CMakeLists.txt) example file:
