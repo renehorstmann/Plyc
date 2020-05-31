@@ -4,7 +4,7 @@ A simple ANSI C library to load and save a .ply file with any desired data.
 ## Getting Started
 Copy the library to your system, compile and install it (tested on GCC 7.4.0).
 If cloned:
-```bash
+```shell script
 $ mkdir build
 $ cd build
 $ cmake ..
