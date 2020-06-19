@@ -9,7 +9,7 @@ extern "C" {
 /** Maximal name length for an header item */
 #define PLY_MAX_NAME_LENGTH 32
 /** Maximal amount of properties for each element */
-#define PLY_MAX_PROPERTIES 16
+#define PLY_MAX_PROPERTIES 32
 /** Maximal amount of elements */
 #define PLY_MAX_ELEMENTS 8
 /** Maximal size of a line comment -> 127 chars + \0 */
