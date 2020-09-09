@@ -12,7 +12,7 @@ int main() {
         if (!header_text)
             return err("failed to load header 1", "");
 
-        ply_File header;
+        PlyFile header;
         ret = ply_header_parse(&header, header_text);
         if (ret)
             return err("header test 1 failed", ret);
@@ -82,7 +82,7 @@ int main() {
         if (!header_text)
             return err("failed to load header 2", "");
 
-        ply_File header;
+        PlyFile header;
         ret = ply_header_parse(&header, header_text);
         if (ret)
             return err("header test 2 failed", ret);
@@ -169,7 +169,7 @@ int main() {
         if (!header_text)
             return err("failed to load header 3", "");
 
-        ply_File header;
+        PlyFile header;
         ret = ply_header_parse(&header, header_text);
         if (ret)
             return err("header test 3 failed", ret);
@@ -240,36 +240,36 @@ int main() {
     {
         char *header_text = "plx\n....";
 
-        ply_File header;
+        PlyFile header;
         ret = ply_header_parse(&header, header_text);
         if (strcmp(ret, "Not a ply file") != 0)
             return err("header fail test 1 failed", ret);
 
-        ply_File_kill(&header);
+        ply_file_kill(&header);
     }
 
     // header fail test 2
     {
         char *header_text = "ply\n...\nend_head";
 
-        ply_File header;
+        PlyFile header;
         ret = ply_header_parse(&header, header_text);
         if (strcmp(ret, "Could not find end_header") != 0)
             return err("header fail test 2 failed", ret);
 
-        ply_File_kill(&header);
+        ply_file_kill(&header);
     }
 
     // header fail test 3
     {
         char *header_text = "ply\nformat UTF8\n...\nend_header";
 
-        ply_File header;
+        PlyFile header;
         ret = ply_header_parse(&header, header_text);
         if (strcmp(ret, "Error parsing format") != 0)
             return err("header fail test 3 failed", ret);
 
-        ply_File_kill(&header);
+        ply_file_kill(&header);
     }
 
     // header fail test 4
@@ -279,13 +279,13 @@ int main() {
         if (!header_text)
             return err("failed to load header fail 4", "");
 
-        ply_File header;
+        PlyFile header;
         ret = ply_header_parse(&header, header_text);
         if (strcmp(ret, "Element error, could not parse num") != 0)
             return err("header fail test 4 failed", ret);
 
         free(header_text);
-        ply_File_kill(&header);
+        ply_file_kill(&header);
     }
 
     // header fail test 5
@@ -295,13 +295,13 @@ int main() {
         if (!header_text)
             return err("failed to load header fail 5", "");
 
-        ply_File header;
+        PlyFile header;
         ret = ply_header_parse(&header, header_text);
         if (strcmp(ret, "Property error, could not parse type") != 0)
             return err("header fail test 5 failed", ret);
 
         free(header_text);
-        ply_File_kill(&header);
+        ply_file_kill(&header);
     }
 
     return 0;

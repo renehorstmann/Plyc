@@ -16,7 +16,7 @@ int main() {
         if (!header_text)
             return err("failed to load data 1", "");
 
-        ply_File file;
+        PlyFile file;
         ret = ply_header_parse(&file, header_text);
         if (ret)
             return err("data test 1 failed, parsing header failed", ret);
@@ -49,7 +49,7 @@ int main() {
         }
 
         free(header_text);
-        ply_File_kill(&file);
+        ply_file_kill(&file);
     }
 
 
@@ -61,7 +61,7 @@ int main() {
         if (!header_text)
             return err("failed to load data 2", "");
 
-        ply_File file;
+        PlyFile file;
         ret = ply_header_parse(&file, header_text);
         if (ret)
             return err("data test 2 failed, parsing header failed", ret);
@@ -132,7 +132,7 @@ int main() {
         }
 
         free(header_text);
-        ply_File_kill(&file);
+        ply_file_kill(&file);
     }
 
 
@@ -145,7 +145,7 @@ int main() {
         if (!header_text)
             return err("failed to load data fail 3", "");
 
-        ply_File file;
+        PlyFile file;
         ret = ply_header_parse(&file, header_text);
         if (ret)
             return err("data fail test 3 failed, parsing header failed", ret);
@@ -171,7 +171,7 @@ int main() {
         if (!header_text)
             return err("failed to load data fail 4", "");
 
-        ply_File file;
+        PlyFile file;
         ret = ply_header_parse(&file, header_text);
         if (ret)
             return err("data fail test 4 failed, parsing header failed", ret);

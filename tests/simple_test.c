@@ -7,7 +7,7 @@ int main() {
 
     // points
     {
-        ply_Simple simple;
+        PlySimple simple;
         ret = ply_simple_load(&simple, "data_1.ply");
         if (ret) return err("simple_load 1 failed", ret);
         if (simple.num != 2)
@@ -29,7 +29,7 @@ int main() {
         ret = ply_simple_save(simple, "savetest_2.ply", PLY_FORMAT_BINARY_BE);
         if (ret) return err("simple_save 2 failed", ret);
 
-        ply_Simple_kill(&simple);
+        ply_simple_kill(&simple);
 
         ret = ply_simple_load(&simple, "savetest_2.ply");
         if (ret) return err("simple_load 2 failed", ret);
@@ -44,12 +44,12 @@ int main() {
         if (vec_check(simple.points[1], (float[]) {4.4, 5.5, 6.6}, 3, 0.001))
             return err("simple_load 2 failed, wrong loaded point 2", "");
 
-        ply_Simple_kill(&simple);
+        ply_simple_kill(&simple);
     }
 
     // mesh
     {
-        ply_Simple simple;
+        PlySimple simple;
         ret = ply_simple_load(&simple, "data_2.ply");
         if (ret) return err("simple_load 3 failed", ret);
         if (simple.normals || simple.colors)
@@ -91,7 +91,7 @@ int main() {
         ret = ply_simple_save(simple, "savetest_3.ply", PLY_FORMAT_ASCII);
         if (ret) return err("simple_save 3 failed", ret);
 
-        ply_Simple_kill(&simple);
+        ply_simple_kill(&simple);
 
         ret = ply_simple_load(&simple, "savetest_3.ply");
         if (ret) return err("simple_load 4 failed", ret);
@@ -109,13 +109,13 @@ int main() {
                 return err("simple_load 4 failed, indices wrong", "");
         }
 
-        ply_Simple_kill(&simple);
+        ply_simple_kill(&simple);
     }
 
 
     // mesh with normals and colors
     {
-        ply_Simple simple;
+        PlySimple simple;
         ret = ply_simple_load(&simple, "data_3.ply");
         if (ret) return err("simple_load 4 failed", ret);
         if (simple.comments_size != 1
@@ -230,7 +230,7 @@ int main() {
         ret = ply_simple_save(simple, "savetest_4.ply", PLY_FORMAT_ASCII);
         if (ret) return err("simple_save 4 failed", ret);
 
-        ply_Simple_kill(&simple);
+        ply_simple_kill(&simple);
     }
 
 }

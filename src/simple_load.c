@@ -9,10 +9,10 @@
 #include "plyc/simple.h"
 
 
-DynArrayWithoutCopy(ply_vec3i, Vec3iArray)
+DynArrayWithoutCopy(ply_vec3i, Vec3iArray, vec3i_array)
 
 
-void ply_Simple_kill(ply_Simple *self) {
+void ply_simple_kill(PlySimple *self) {
     if (self->holds_heap_memory_) {
         Free0(self->points);
         Free0(self->normals);
@@ -25,19 +25,19 @@ void ply_Simple_kill(ply_Simple *self) {
 }
 
 
-ply_err ply_simple_load(ply_Simple *out_simple,
+ply_err ply_simple_load(PlySimple *self,
                         const char *filename) {
     const int max_list_size = 4;
 
     ply_err err = PLY_Success;
 
 
-    ply_File file;
+    PlyFile file;
     err = ply_load_file(&file, filename, max_list_size);
     if (err) return err;
 
 
-    ply_Simple simple = {0};
+    PlySimple simple = {0};
     simple.holds_heap_memory_ = true;
     simple.comments_size = file.comments_size;
     memcpy(simple.comments, file.comments, sizeof(file.comments));
@@ -46,20 +46,20 @@ ply_err ply_simple_load(ply_Simple *out_simple,
         PlySetErrGoto(err, "Wrong number of elements, should be 1 or 2", CLEAN_UP)
     }
 
-    ply_element *vertex = &file.elements[0];
-    ply_element *face = NULL;
+    PlyElement_s *vertex = &file.elements[0];
+    PlyElement_s *face = NULL;
     if (file.elements_size == 2)
         face = &file.elements[1];
 
-    ply_property *x = plyelement_get_property(vertex, "x");
-    ply_property *y = plyelement_get_property(vertex, "y");
-    ply_property *z = plyelement_get_property(vertex, "z");
-    ply_property *nx = plyelement_get_property(vertex, "nx");;
-    ply_property *ny = plyelement_get_property(vertex, "ny");;
-    ply_property *nz = plyelement_get_property(vertex, "nz");;
-    ply_property *r = plyelement_get_property(vertex, "red");
-    ply_property *g = plyelement_get_property(vertex, "green");
-    ply_property *b = plyelement_get_property(vertex, "blue");
+    PlyProperty_s *x = ply_element_get_property(vertex, "x");
+    PlyProperty_s *y = ply_element_get_property(vertex, "y");
+    PlyProperty_s *z = ply_element_get_property(vertex, "z");
+    PlyProperty_s *nx = ply_element_get_property(vertex, "nx");;
+    PlyProperty_s *ny = ply_element_get_property(vertex, "ny");;
+    PlyProperty_s *nz = ply_element_get_property(vertex, "nz");;
+    PlyProperty_s *r = ply_element_get_property(vertex, "red");
+    PlyProperty_s *g = ply_element_get_property(vertex, "green");
+    PlyProperty_s *b = ply_element_get_property(vertex, "blue");
 
     if (!x || !y || !z) {
         PlySetErrGoto(err, "XYZ are missing in the ply file", CLEAN_UP)
@@ -105,9 +105,9 @@ ply_err ply_simple_load(ply_Simple *out_simple,
     }
 
     if (face && face->properties_size == 1 && face->properties[0].list_type != PLY_TYPE_NONE) {
-        ply_property *indices = &face->properties[0];
+        PlyProperty_s *indices = &face->properties[0];
         Vec3iArray array = {0};
-        Vec3iArray_set_capacity(&array, face->num);
+        vec3i_array_set_capacity(&array, face->num);
         if (array.array) {
             for (int i = 0; i < face->num; i++) {
                 ply_byte *list_data = indices->data + indices->offset + indices->stride * i;
@@ -122,7 +122,7 @@ ply_err ply_simple_load(ply_Simple *out_simple,
                 list_data += ply_type_size(indices->list_type);
 
                 // copy the triangle vertex indices
-                ply_vec3i *face_a = Vec3iArray_append(&array);
+                ply_vec3i *face_a = vec3i_array_append(&array);
                 for (int v = 0; v < 3; v++) {
                     (*face_a)[v] = ply_type_to_int(list_data, indices->type);
                     list_data += ply_type_size(indices->type);
@@ -130,7 +130,7 @@ ply_err ply_simple_load(ply_Simple *out_simple,
 
                 // add second triangle to match the quad
                 if (list_size == 4) {
-                    ply_vec3i *face_b = Vec3iArray_append(&array);
+                    ply_vec3i *face_b = vec3i_array_append(&array);
                     (*face_b)[0] = (*face_a)[0];
                     (*face_b)[1] = (*face_a)[2];
                     (*face_b)[2] = ply_type_to_int(list_data, indices->type);
@@ -144,11 +144,11 @@ ply_err ply_simple_load(ply_Simple *out_simple,
     }
 
     // move
-    *out_simple = simple;
-    simple = (ply_Simple) {0};
+    *self = simple;
+    simple = (PlySimple) {0};
 
     CLEAN_UP:
-    ply_File_kill(&file);
+    ply_file_kill(&file);
     free(simple.points);
     free(simple.normals);
     free(simple.colors);

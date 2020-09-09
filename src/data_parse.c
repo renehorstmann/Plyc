@@ -100,7 +100,7 @@ static ply_err parse_property(ply_byte *restrict out_data,
                               size_t *out_consumed_bytes,
                               const ply_byte *restrict actual_ply_data,
                               const ply_byte *ply_data_end,
-                              ply_property property,
+                              PlyProperty_s property,
                               enum ply_format format,
                               size_t max_list_size) {
 
@@ -147,13 +147,13 @@ static ply_err parse_property(ply_byte *restrict out_data,
 }
 
 
-static size_t property_size(ply_property property, size_t max_list_size) {
+static size_t property_size(PlyProperty_s property, size_t max_list_size) {
     if (property.list_type != PLY_TYPE_NONE)
         return ply_type_size(property.list_type) + max_list_size * ply_type_size(property.type);
     return ply_type_size(property.type);
 }
 
-static size_t element_size(ply_element element, size_t max_list_size) {
+static size_t element_size(PlyElement_s element, size_t max_list_size) {
     size_t size = 0;
     for (size_t i = 0; i < element.properties_size; i++)
         size += property_size(element.properties[i], max_list_size);
@@ -166,7 +166,7 @@ static ply_err parse_element(ply_byte *restrict out_data,
                              size_t *out_consumed_bytes,
                              const ply_byte *restrict actual_ply_data,
                              const ply_byte *ply_data_end,
-                             ply_element element,
+                             PlyElement_s element,
                              enum ply_format format,
                              size_t max_list_size) {
     if (element.properties_size > PLY_MAX_PROPERTIES)
@@ -189,7 +189,7 @@ static ply_err parse_element(ply_byte *restrict out_data,
 }
 
 
-ply_err ply_data_parse(ply_File *in_out_file,
+ply_err ply_data_parse(PlyFile *in_out_file,
                        const ply_byte *restrict ply_data, size_t ply_data_size,
                        size_t max_list_size) {
     ply_err err = PLY_Success;
@@ -209,7 +209,7 @@ ply_err ply_data_parse(ply_File *in_out_file,
     ply_byte *actual_data = buffer;
 
     for (int e = 0; e < in_out_file->elements_size; e++) {
-        ply_element *element = &in_out_file->elements[e];
+        PlyElement_s *element = &in_out_file->elements[e];
 
         size_t consumed_bytes = 0;
         err = parse_element(actual_data, &consumed_bytes,
@@ -219,7 +219,7 @@ ply_err ply_data_parse(ply_File *in_out_file,
 
         // set up ply properties...
         for (int p = 0; p < element->properties_size; p++) {
-            ply_property *prop = &element->properties[p];
+            PlyProperty_s *prop = &element->properties[p];
             prop->data = actual_data;
 
             prop->offset = 0;

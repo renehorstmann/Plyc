@@ -47,7 +47,7 @@ int main() {
     const char *filename = "helloplyc.ply";
 
     // a simple format to store a point cloud (with a list of float[4])
-    ply_Simple cloud;
+    PlySimple cloud;
 
     ply_err err = ply_simple_load(&cloud, filename);
 
@@ -71,7 +71,7 @@ int main() {
     // i  :    x  |   y  |   z
 
     // free the point cloud
-    ply_Simple_kill(&cloud);
+    ply_simple_kill(&cloud);
 }
 ```
 
@@ -96,7 +96,7 @@ int main() {
                                {0, 0, 1, 1}};
 
     // The Simple struct consists of multiple fields:
-    ply_Simple cloud;
+    PlySimple cloud;
     cloud.points = data_points; // pointer to an xyzw point matrix
     cloud.normals = NULL;       // optional normals as nxnynzw matrix
     cloud.colors = NULL;        // optional colors as rgbw matrix
@@ -111,7 +111,7 @@ int main() {
     cloud.holds_heap_memory_ = false;   // for internal use
 
     // Another - easier - way to build up the struct, is to set all other values to 0 at beginning:
-    ply_Simple cloud_easy_creation = {0};
+    PlySimple cloud_easy_creation = {0};
     cloud_easy_creation.points = data_points;
     cloud_easy_creation.num = 5;
 
@@ -128,7 +128,7 @@ int main() {
     }
 
     // killing a custom cloud has no effect, only if holds_heap_memory_ is true, it will free each pointer
-    ply_Simple_kill(&cloud);
+    ply_simple_kill(&cloud);
 }
 ```
 
@@ -145,7 +145,7 @@ int main() {
     const char *filename = "mesh.ply";
 
     // a simple format to store a point cloud, but also a mesh (with an additional indices list of int[3])
-    ply_Simple cloud;
+    PlySimple cloud;
 
     ply_err err = ply_simple_load(&cloud, filename);
 
@@ -189,7 +189,7 @@ int main() {
     // i  :v:    x  |   y  |   z
 
     // free the point cloud and its mesh indices
-    ply_Simple_kill(&cloud);
+    ply_simple_kill(&cloud);
 }
 ```
 
@@ -208,7 +208,7 @@ int main() {
     const char *filename = "helloplyc.ply";
 
     // holds all information and memory, once loaded
-    ply_File plyfile;
+    PlyFile plyfile;
 
     // load a .ply file into memory
     // the third parameter (max_list_size) defines the maximum size for each property list
@@ -239,14 +239,14 @@ int main() {
     puts("");
 
     // get access to an element
-    ply_element *vertex;
+    PlyElement_s *vertex;
 
     // option 1:
     vertex = &plyfile.elements[0];
     printf("First element has the name: %s and %zu points\n", vertex->name, vertex->num);
 
     // option 2:
-    vertex = ply_File_get_element(&plyfile, "vertex");
+    vertex = ply_file_get_element(&plyfile, "vertex");
     if (!vertex) {
         fprintf(stderr, "Error finding element vertex");
         exit(EXIT_FAILURE);
@@ -260,15 +260,15 @@ int main() {
 
 
     // get access to some properties
-    ply_property *x, *y, *z;
+    PlyProperty_s *x, *y, *z;
 
     // option 1:
     x = &vertex->properties[0];
     printf("First property has the name: %s\n", x->name);
 
     // option 2:
-    y = plyelement_get_property(vertex, "y");
-    z = plyelement_get_property(vertex, "z");
+    y = ply_element_get_property(vertex, "y");
+    z = ply_element_get_property(vertex, "z");
     if (!y || !z) {
         fprintf(stderr, "Error finding properties y and z");
         exit(EXIT_FAILURE);
@@ -310,7 +310,7 @@ int main() {
     //i  :    x  |   y  |   z
 
     // free the loaded ply file
-    ply_File_kill(&plyfile);
+    ply_file_kill(&plyfile);
 }
 ```
 ## Author

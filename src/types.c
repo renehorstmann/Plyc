@@ -58,7 +58,7 @@ int ply_type_to_int(const ply_byte *data, enum ply_type type) {
     return 0;
 }
 
-ply_property *plyelement_get_property(ply_element *self, const char *property_name) {
+PlyProperty_s *ply_element_get_property(PlyElement_s *self, const char *property_name) {
     for(int i=0; i<self->properties_size; i++) {
         if(strcmp(self->properties[i].name, property_name) == 0)
             return &self->properties[i];
@@ -66,13 +66,13 @@ ply_property *plyelement_get_property(ply_element *self, const char *property_na
     return NULL;
 }
 
-void ply_File_kill(ply_File *self) {
+void ply_file_kill(PlyFile *self) {
     Free0(self->parsed_data_on_heap_);
     self->elements_size = 0;
     self->comments_size = 0;
 }
 
-ply_element *ply_File_get_element(ply_File *self, const char *element_name) {
+PlyElement_s *ply_file_get_element(PlyFile *self, const char *element_name) {
     for(int i=0; i<self->elements_size; i++) {
         if(strcmp(self->elements[i].name, element_name) == 0)
             return &self->elements[i];

@@ -8,21 +8,21 @@
 
 #include "plyc/simple.h"
 
-ply_File header_from_simple(ply_Simple simple, enum ply_format format) {
-    ply_File header = {0};
+PlyFile header_from_simple(PlySimple simple, enum ply_format format) {
+    PlyFile header = {0};
     header.format = format;
     header.comments_size = simple.comments_size;
     memcpy(header.comments, simple.comments, sizeof(simple.comments));
 
     header.elements_size = 1;
-    ply_element *vertex = &header.elements[0];
+    PlyElement_s *vertex = &header.elements[0];
     strcpy(vertex->name, "vertex");
     vertex->num = simple.num;
 
     vertex->properties_size = 0;
     for (int i = 0; i < 3; i++) {
         int index = vertex->properties_size++;
-        ply_property *property = &vertex->properties[index];
+        PlyProperty_s *property = &vertex->properties[index];
         strcpy(property->name, (const char *[]) {"x", "y", "z"}[i]);
         property->list_type = PLY_TYPE_NONE;
         property->type = PLY_TYPE_FLOAT;
@@ -34,7 +34,7 @@ ply_File header_from_simple(ply_Simple simple, enum ply_format format) {
     if (simple.normals) {
         for (int i = 0; i < 3; i++) {
             int index = vertex->properties_size++;
-            ply_property *property = &vertex->properties[index];
+            PlyProperty_s *property = &vertex->properties[index];
             strcpy(property->name, (const char *[]) {"nx", "ny", "nz"}[i]);
             property->list_type = PLY_TYPE_NONE;
             property->type = PLY_TYPE_FLOAT;
@@ -47,7 +47,7 @@ ply_File header_from_simple(ply_Simple simple, enum ply_format format) {
     if (simple.colors) {
         for (int i = 0; i < 3; i++) {
             int index = vertex->properties_size++;
-            ply_property *property = &vertex->properties[index];
+            PlyProperty_s *property = &vertex->properties[index];
             strcpy(property->name, (const char *[]) {"red", "green", "blue"}[i]);
             property->list_type = PLY_TYPE_NONE;
             property->type = PLY_TYPE_FLOAT;
@@ -59,11 +59,11 @@ ply_File header_from_simple(ply_Simple simple, enum ply_format format) {
 
     if (simple.indices && simple.indices_size > 0) {
         header.elements_size = 2;
-        ply_element *face = &header.elements[1];
+        PlyElement_s *face = &header.elements[1];
         strcpy(face->name, "face");
         face->num = simple.indices_size;
         face->properties_size = 1;
-        ply_property *vertex_indices = &face->properties[0];
+        PlyProperty_s *vertex_indices = &face->properties[0];
         strcpy(vertex_indices->name, "vertex_indices");
         vertex_indices->list_type = PLY_TYPE_UCHAR;
         vertex_indices->type = PLY_TYPE_INT;
@@ -72,7 +72,7 @@ ply_File header_from_simple(ply_Simple simple, enum ply_format format) {
     return header;
 }
 
-ply_err add_indices_data(ply_File *file, ply_Simple simple) {
+ply_err add_indices_data(PlyFile *file, PlySimple simple) {
     ply_err err = PLY_Success;
 
     if(file->elements_size != 2)
@@ -102,20 +102,20 @@ ply_err add_indices_data(ply_File *file, ply_Simple simple) {
     return err;
 }
 
-ply_err ply_simple_save(ply_Simple simple,
+ply_err ply_simple_save(PlySimple self,
                         const char *filename,
                         enum ply_format format) {
     ply_err err = PLY_Success;
 
-    ply_File file = header_from_simple(simple, format);
+    PlyFile file = header_from_simple(self, format);
 
     // adds tmp indices to files heap field
-    err = add_indices_data(&file, simple);
+    err = add_indices_data(&file, self);
     if (err)
         return err;
 
     err = ply_save_file(file, filename);
-    ply_File_kill(&file);   // to kill the tmp indices on its heap field
+    ply_file_kill(&file);   // to kill the tmp indices on its heap field
     return err;
 }
 

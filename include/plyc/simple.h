@@ -22,9 +22,9 @@ typedef int ply_vec3i[3];
  * indices_size is the number of triangles.
  * comments and comments_size are the line comments of the ply header.
  * The field holds_heap_memory_ is set to true, if the loaded data is allocated on the heap (from ply_simple_load).
- * If ply_Simple is loaded by ply_simple_load, destruct it after usage with ply_Simple_kill.
+ * If PlySimple is loaded by ply_simple_load, destruct it after usage with ply_simple_kill.
  */
-typedef struct ply_Simple {
+typedef struct PlySimple {
     ply_vec4 *points;
     ply_vec4 *normals;
     ply_vec4 *colors;
@@ -37,31 +37,31 @@ typedef struct ply_Simple {
     size_t comments_size;
 
     bool holds_heap_memory_;
-} ply_Simple;
+} PlySimple;
 
 /**
- * Destructor for ply_Simple.
+ * Destructor for PlySimple.
  * Frees points, normals, colors and indices, if holds_heap_memory is true (from ply_simple_load).
  */
-void ply_Simple_kill(ply_Simple *self);
+void ply_simple_kill(PlySimple *self);
 
 /**
  * Loads and parses a .ply file.
  * @param filename: The file destination to load the .ply file
  * @return: A ply_err if an error occurs, such as file not found.
  */
-ply_err ply_simple_load(ply_Simple *out_simple,
+ply_err ply_simple_load(PlySimple *self,
                         const char *filename);
 
 /**
  * Writes and saves a .ply file.
- * @param simple: The filled up simple cloud.
+ * @param self: The filled up self cloud.
  * @param filename: The file destination to load the .ply file
  * @param format: The ply format to save the data with
  * (one of PLY_FORMAT_ASCII, PLY_FORMAT_BINARY_LE, PLY_FORMAT_BINARY_BE).
  * @return: A ply_err if an error occurs, such as file permission error.
  */
-ply_err ply_simple_save(ply_Simple simple,
+ply_err ply_simple_save(PlySimple self,
                         const char *filename,
                         enum ply_format format);
 

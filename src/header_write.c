@@ -7,22 +7,22 @@
 #include "plyc/utilc/dynarray.h"
 #include "plyc/header.h"
 
-DynArray(char, CharArray)
+DynArray(char, CharArray, char_array)
 
 static void push_string(CharArray *array, const char *string) {
     while (*string)
-        CharArray_push(array, *string++);
+        char_array_push(array, *string++);
 }
 
 
-static void push_element(CharArray *array, ply_element *element) {
+static void push_element(CharArray *array, PlyElement_s *element) {
     push_string(array, "element ");
     push_string(array, element->name);
-    CharArray_push(array, ' ');
+    char_array_push(array, ' ');
     char num_str[12];   // max length for 32bit
     sprintf(num_str, "%zu", element->num);
     push_string(array, num_str);
-    CharArray_push(array, '\n');
+    char_array_push(array, '\n');
 }
 
 static void push_type(CharArray *array, enum ply_type type) {
@@ -44,30 +44,30 @@ static void push_type(CharArray *array, enum ply_type type) {
         push_string(array, "double");
 }
 
-static void push_property(CharArray *array, ply_property *property) {
+static void push_property(CharArray *array, PlyProperty_s *property) {
 
     push_string(array, "property ");
 
     if (property->list_type != PLY_TYPE_NONE) {
         push_string(array, "list ");
         push_type(array, property->list_type);
-        CharArray_push(array, ' ');
+        char_array_push(array, ' ');
     }
 
     push_type(array, property->type);
-    CharArray_push(array, ' ');
+    char_array_push(array, ' ');
     push_string(array, property->name);
-    CharArray_push(array, '\n');
+    char_array_push(array, '\n');
 }
 
-ply_err ply_header_write_to_heap(char **out_header_on_heap, ply_File header) {
+ply_err ply_header_write_to_heap(char **out_header_on_heap, PlyFile header) {
 
     setlocale(LC_ALL, "C");
 
     ply_err err = PLY_Success;
 
     CharArray array = {0};
-    CharArray_set_capacity(&array, 128);
+    char_array_set_capacity(&array, 128);
 
     push_string(&array, "ply\n");
 
@@ -84,12 +84,12 @@ ply_err ply_header_write_to_heap(char **out_header_on_heap, ply_File header) {
     for (size_t i = 0; i < header.comments_size; i++) {
         push_string(&array, "comment ");
         push_string(&array, header.comments[i]);
-        CharArray_push(&array, '\n');
+        char_array_push(&array, '\n');
     }
 
     if (header.elements_size > PLY_MAX_ELEMENTS) PlySetErrGoto(err, "Element error, too many elements", CLEAN_UP)
     for (size_t i = 0; i < header.elements_size; i++) {
-        ply_element *element = &header.elements[i];
+        PlyElement_s *element = &header.elements[i];
         if (element->properties_size > PLY_MAX_PROPERTIES) {
             PlySetErrGoto(err, "Property error, too many properties", CLEAN_UP)
         }
@@ -105,7 +105,7 @@ ply_err ply_header_write_to_heap(char **out_header_on_heap, ply_File header) {
         push_element(&array, element);
 
         for (size_t p = 0; p < element->properties_size; p++) {
-            ply_property *property = &element->properties[p];
+            PlyProperty_s *property = &element->properties[p];
 
             for (size_t j = 0; j < p; j++) {
                 if (strcmp(property->name, header.elements[i].properties[j].name) == 0) {
@@ -122,14 +122,14 @@ ply_err ply_header_write_to_heap(char **out_header_on_heap, ply_File header) {
 
 
     push_string(&array, "end_header\n");
-    CharArray_push(&array, '\0');
+    char_array_push(&array, '\0');
 
     // move
     *out_header_on_heap = array.array;
     array.array = NULL;
 
     CLEAN_UP:
-    CharArray_kill(&array);
+    char_array_kill(&array);
 
     return err;
 }

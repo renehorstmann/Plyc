@@ -9,7 +9,7 @@
 
 #include "os_helper.h"
 
-ply_err ply_load_file(ply_File *out_file, const char *filename, int max_list_size) {
+ply_err ply_load_file(PlyFile *out_file, const char *filename, int max_list_size) {
     char *memory_begin, *memory_end;
     open_file_as_string(&memory_begin, &memory_end, filename);
     ply_err res = ply_parse_memory(out_file, memory_begin, memory_end-memory_begin, max_list_size);
@@ -17,10 +17,10 @@ ply_err ply_load_file(ply_File *out_file, const char *filename, int max_list_siz
     return res;
 }
 
-ply_err ply_parse_memory(ply_File *out_file, const char *ply_file_text, size_t ply_file_text_size, int max_list_size) {
+ply_err ply_parse_memory(PlyFile *out_file, const char *ply_file_text, size_t ply_file_text_size, int max_list_size) {
     ply_err err;
 
-    *out_file = (ply_File) {0};
+    *out_file = (PlyFile) {0};
 
     const char *memory_end = ply_file_text + ply_file_text_size;
 

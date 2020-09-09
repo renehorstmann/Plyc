@@ -9,19 +9,19 @@
 
 #include "os_helper.h"
 
-DynArray(char, CharArray)
+DynArray(char, CharArray, char_array)
 
 
 static void write_type(CharArray *array, enum ply_type type, enum ply_format format, const ply_byte *data) {
     if (format == PLY_FORMAT_BINARY_LE) {
-        CharArray_resize(array, array->size + ply_type_size(type));
+        char_array_resize(array, array->size + ply_type_size(type));
         char *buffer = &array->array[array->size - ply_type_size(type)];
         if (system_is_little_endian())
             memcpy(buffer, data, ply_type_size(type));
         else
             switch_endian(buffer, data, ply_type_size(type));
     } else if (format == PLY_FORMAT_BINARY_BE) {
-        CharArray_resize(array, array->size + ply_type_size(type));
+        char_array_resize(array, array->size + ply_type_size(type));
         char *buffer = &array->array[array->size - ply_type_size(type)];
         if (!system_is_little_endian())
             memcpy(buffer, data, ply_type_size(type));
@@ -46,8 +46,8 @@ static void write_type(CharArray *array, enum ply_type type, enum ply_format for
         else if (type == PLY_TYPE_DOUBLE)
             sprintf(buffer, "%f", *((double *) data));
 
-        CharArray_push_array(array, buffer, strlen(buffer));
-        CharArray_push(array, ' ');
+        char_array_push_array(array, buffer, strlen(buffer));
+        char_array_push(array, ' ');
     }
 }
 
@@ -76,15 +76,15 @@ static void write_list(CharArray *array, enum ply_type list_type, enum ply_type 
 }
 
 static ply_err write_element_to_heap(char **out_element_on_heap, size_t *out_element_size,
-                                     ply_element element, enum ply_format format) {
+                                     PlyElement_s element, enum ply_format format) {
     CharArray array = {0};
-    CharArray_set_capacity(&array, element.num * element.properties_size);  // minimal size as start size
+    char_array_set_capacity(&array, element.num * element.properties_size);  // minimal size as start size
     if (!array.array)
         return "Allocation error";
 
     for (size_t i = 0; i < element.num; i++) {
         for (size_t p = 0; p < element.properties_size; p++) {
-            ply_property *property = &element.properties[p];
+            PlyProperty_s *property = &element.properties[p];
             const ply_byte *data = property->data + property->offset + property->stride * i;
 
             if (property->list_type == PLY_TYPE_NONE) {
@@ -97,13 +97,13 @@ static ply_err write_element_to_heap(char **out_element_on_heap, size_t *out_ele
         }
 
         if (format == PLY_FORMAT_ASCII)
-            CharArray_push(&array, '\n');
+            char_array_push(&array, '\n');
     }
 
     *out_element_size = array.size;
 
     if (format == PLY_FORMAT_ASCII)
-        CharArray_push(&array, '\0');
+        char_array_push(&array, '\0');
 
     *out_element_on_heap = array.array;
 
@@ -111,7 +111,7 @@ static ply_err write_element_to_heap(char **out_element_on_heap, size_t *out_ele
 }
 
 
-ply_err ply_data_write_to_heap(char **out_data_on_heap, size_t *out_data_size, ply_File file) {
+ply_err ply_data_write_to_heap(char **out_data_on_heap, size_t *out_data_size, PlyFile file) {
     ply_err err = PLY_Success;
 
     if(file.elements_size <= 0)

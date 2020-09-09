@@ -7,7 +7,7 @@
 #include "plyc/data.h"
 
 
-ply_err ply_save_file(ply_File file, const char *filename) {
+ply_err ply_save_file(PlyFile file, const char *filename) {
     char *heap_begin;
     size_t size;
 
@@ -30,7 +30,7 @@ ply_err ply_save_file(ply_File file, const char *filename) {
 }
 
 
-ply_err ply_write_memory_into_heap(char **out_data_on_heap, size_t *out_size, ply_File file) {
+ply_err ply_write_memory_into_heap(char **out_data_on_heap, size_t *out_size, PlyFile file) {
     ply_err err = PLY_Success;
 
     char *header_text;

@@ -91,49 +91,49 @@ int ply_type_to_int(const ply_byte *data, enum ply_type type);
  * If the property is completely parsed (header + data), the data, offset and stride members are filled,
  * so one can use them to iterate over the data (data + offset + stride * i).
  */
-typedef struct ply_property {
+typedef struct PlyProperty_s {
     char name[PLY_MAX_NAME_LENGTH];
     enum ply_type list_type;
     enum ply_type type;
     ply_byte *data;
     int offset;
     int stride;
-} ply_property;
+} PlyProperty_s;
 
 /**
  * Autotype struct for a ply element.
  * An element exist of a number of points and a list of ply properties.
  */
-typedef struct ply_element {
+typedef struct PlyElement_s {
     char name[PLY_MAX_NAME_LENGTH];
     size_t num;
-    ply_property properties[PLY_MAX_PROPERTIES];
+    PlyProperty_s properties[PLY_MAX_PROPERTIES];
     size_t properties_size;
-} ply_element;
+} PlyElement_s;
 
 /** Returns the ply property with the given name, or NULL if not found */
-ply_property *plyelement_get_property(ply_element *self, const char *property_name);
+PlyProperty_s *ply_element_get_property(PlyElement_s *self, const char *property_name);
 
 /**
  * Class struct for a parsed ply file.
  * The file contains all needed information and a list of elements and comments.
  * In the field parsed_data_on_heap_ is the complete parsed data of the ply file.
- * Because this field uses an heap array, one must call ply_File_kill after usage.
+ * Because this field uses an heap array, one must call ply_file_kill after usage.
  */
-typedef struct ply_File {
+typedef struct PlyFile {
     enum ply_format format;
     char comments[PLY_MAX_COMMENTS][PLY_MAX_COMMENT_LENGTH];
     size_t comments_size;
-    ply_element elements[PLY_MAX_ELEMENTS];
+    PlyElement_s elements[PLY_MAX_ELEMENTS];
     size_t elements_size;
     ply_byte *parsed_data_on_heap_;
-} ply_File;
+} PlyFile;
 
 /** Destructor of the ply file (to free field parsed_data_on_heap_) */
-void ply_File_kill(ply_File *self);
+void ply_file_kill(PlyFile *self);
 
 /** Returns the ply element with the given name, or NULL if not found */
-ply_element *ply_File_get_element(ply_File *self, const char *element_name);
+PlyElement_s *ply_file_get_element(PlyFile *self, const char *element_name);
 
 
 #ifdef __cplusplus
