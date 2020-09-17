@@ -9,7 +9,7 @@
 #include "plyc/simple.h"
 
 
-DynArrayWithoutCopy(ply_vec3i, Vec3iArray, vec3i_array)
+DynArrayWithoutCopy(ply_ivec3, Vec3iArray, vec3i_array)
 
 
 void ply_simple_kill(PlySimple *self) {
@@ -122,7 +122,7 @@ ply_err ply_simple_load(PlySimple *self,
                 list_data += ply_type_size(indices->list_type);
 
                 // copy the triangle vertex indices
-                ply_vec3i *face_a = vec3i_array_append(&array);
+                ply_ivec3 *face_a = vec3i_array_append(&array);
                 for (int v = 0; v < 3; v++) {
                     (*face_a)[v] = ply_type_to_int(list_data, indices->type);
                     list_data += ply_type_size(indices->type);
@@ -130,7 +130,7 @@ ply_err ply_simple_load(PlySimple *self,
 
                 // add second triangle to match the quad
                 if (list_size == 4) {
-                    ply_vec3i *face_b = vec3i_array_append(&array);
+                    ply_ivec3 *face_b = vec3i_array_append(&array);
                     (*face_b)[0] = (*face_a)[0];
                     (*face_b)[1] = (*face_a)[2];
                     (*face_b)[2] = ply_type_to_int(list_data, indices->type);

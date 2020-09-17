@@ -12,7 +12,7 @@ extern "C" {
 typedef float ply_vec4[4];
 
 /** typedef for an int vector with 3 elements (triangle abc indices) */
-typedef int ply_vec3i[3];
+typedef int ply_ivec3[3];
 
 /**
  * Class struct that contains the loaded simple cloud from a .ply file.
@@ -30,7 +30,7 @@ typedef struct PlySimple {
     ply_vec4 *colors;
     size_t num;
 
-    ply_vec3i *indices;
+    ply_ivec3 *indices;
     size_t indices_size;
 
     char comments[PLY_MAX_COMMENTS][PLY_MAX_COMMENT_LENGTH];
