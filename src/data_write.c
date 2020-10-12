@@ -52,7 +52,7 @@ static void write_type(CharArray *array, enum ply_type type, enum ply_format for
 }
 
 static void write_list(CharArray *array, enum ply_type list_type, enum ply_type type, enum ply_format format,
-                       const ply_byte *data, size_t n) {
+                       const ply_byte *data, int n) {
     char list_size[4];  // max type length for list a list size (int or uint)
     if (list_type == PLY_TYPE_CHAR)
         *((int8_t *) list_size) = (int8_t) n;
@@ -75,15 +75,15 @@ static void write_list(CharArray *array, enum ply_type list_type, enum ply_type 
         write_type(array, type, format, data + ply_type_size(type) * i);
 }
 
-static ply_err write_element_to_heap(char **out_element_on_heap, size_t *out_element_size,
+static ply_err write_element_to_heap(char **out_element_on_heap, int *out_element_size,
                                      PlyElement_s element, enum ply_format format) {
     CharArray array = {0};
     char_array_set_capacity(&array, element.num * element.properties_size);  // minimal size as start size
     if (!array.array)
         return "Allocation error";
 
-    for (size_t i = 0; i < element.num; i++) {
-        for (size_t p = 0; p < element.properties_size; p++) {
+    for (int i = 0; i < element.num; i++) {
+        for (int p = 0; p < element.properties_size; p++) {
             PlyProperty_s *property = &element.properties[p];
             const ply_byte *data = property->data + property->offset + property->stride * i;
 
@@ -111,16 +111,16 @@ static ply_err write_element_to_heap(char **out_element_on_heap, size_t *out_ele
 }
 
 
-ply_err ply_data_write_to_heap(char **out_data_on_heap, size_t *out_data_size, PlyFile file) {
+ply_err ply_data_write_to_heap(char **out_data_on_heap, int *out_data_size, PlyFile file) {
     ply_err err = PLY_Success;
 
     if(file.elements_size <= 0)
         return "Elements error, no elements available to write";
 
     char *data_array[file.elements_size];
-    size_t size_array[file.elements_size];
-    size_t buffer_size = 0;
-    size_t size = 0;
+    int size_array[file.elements_size];
+    int buffer_size = 0;
+    int size = 0;
 
     for (int e = 0; e < file.elements_size; e++) {
         err = write_element_to_heap(&data_array[e], &size_array[e], file.elements[e], file.format);

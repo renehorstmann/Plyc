@@ -21,15 +21,15 @@ extern "C" {
  * @return: A ply_err if an error occurs, such as memory size is too small.
  */
 ply_err ply_data_parse(PlyFile *in_out_file,
-                       const ply_byte *restrict ply_data, size_t ply_data_size,
-                       size_t max_list_size);
+                       const ply_byte *restrict ply_data, int ply_data_size,
+                       int max_list_size);
 
 /**
  * Writes the data of the PlyFile into an allocated memory array (out_data_on_heap + out_data_size) on the heap.
  * @param file: the filled up PlyFile to write the data from.
  * @return: A ply_err if an error occurs..
  */
-ply_err ply_data_write_to_heap(char **out_data_on_heap, size_t *out_data_size, PlyFile file);
+ply_err ply_data_write_to_heap(char **out_data_on_heap, int *out_data_size, PlyFile file);
 
 
 #ifdef __cplusplus

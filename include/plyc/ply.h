@@ -25,7 +25,7 @@ ply_err ply_load_file(PlyFile *out_file, const char *filename, int max_list_size
  * @param max_list_size: Maximal size of each property list. (meshes uses a size of 3 or 4 for triangle or quads).
  * @return: A ply_err if an error occurs.
  */
-ply_err ply_parse_memory(PlyFile *out_file, const char *ply_file_text, size_t ply_file_text_size, int max_list_size);
+ply_err ply_parse_memory(PlyFile *out_file, const char *ply_file_text, int ply_file_text_size, int max_list_size);
 
 /**
  * Writes and saves a .ply file to a file.
@@ -40,7 +40,7 @@ ply_err ply_save_file(PlyFile file, const char *filename);
  * @param file: The filled out PlyFile.
  * @return: A ply_err if an error occurs.
  */
-ply_err ply_write_memory_into_heap(char **out_data_on_heap, size_t *out_size, PlyFile file);
+ply_err ply_write_memory_into_heap(char **out_data_on_heap, int *out_size, PlyFile file);
 
 
 

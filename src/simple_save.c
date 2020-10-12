@@ -79,7 +79,7 @@ ply_err add_indices_data(PlyFile *file, PlySimple simple) {
         return PLY_Success;
 
     int stride = ply_type_size(PLY_TYPE_UCHAR) + 3 * ply_type_size(PLY_TYPE_INT);
-    size_t buffer_size = simple.indices_size * stride;
+    int buffer_size = simple.indices_size * stride;
     file->parsed_data_on_heap_ = TryNew(ply_byte, buffer_size);
     if(!file->parsed_data_on_heap_)
         return "Allocation error";

@@ -28,13 +28,13 @@ typedef struct PlySimple {
     ply_vec4 *points;
     ply_vec4 *normals;
     ply_vec4 *colors;
-    size_t num;
+    int num;
 
     ply_ivec3 *indices;
-    size_t indices_size;
+    int indices_size;
 
     char comments[PLY_MAX_COMMENTS][PLY_MAX_COMMENT_LENGTH];
-    size_t comments_size;
+    int comments_size;
 
     bool holds_heap_memory_;
 } PlySimple;

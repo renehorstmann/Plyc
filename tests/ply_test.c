@@ -49,7 +49,7 @@ int main() {
         }
 
         char *written_begin;
-        size_t written_size;
+        int written_size;
         ret = ply_write_memory_into_heap(&written_begin, &written_size, file);
         if (ret) return err("write_memory 1 failed", ret);
 

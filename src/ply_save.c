@@ -9,7 +9,7 @@
 
 ply_err ply_save_file(PlyFile file, const char *filename) {
     char *heap_begin;
-    size_t size;
+    int size;
 
     ply_err err = ply_write_memory_into_heap(&heap_begin, &size, file);
     if(err)
@@ -30,13 +30,13 @@ ply_err ply_save_file(PlyFile file, const char *filename) {
 }
 
 
-ply_err ply_write_memory_into_heap(char **out_data_on_heap, size_t *out_size, PlyFile file) {
+ply_err ply_write_memory_into_heap(char **out_data_on_heap, int *out_size, PlyFile file) {
     ply_err err = PLY_Success;
 
     char *header_text;
-    size_t header_text_size;
+    int header_text_size;
     char *data_buffer;
-    size_t data_buffer_size;
+    int data_buffer_size;
 
     err = ply_header_write_to_heap(&header_text, file);
     if(err) return err;

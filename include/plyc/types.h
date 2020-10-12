@@ -106,9 +106,9 @@ typedef struct PlyProperty_s {
  */
 typedef struct PlyElement_s {
     char name[PLY_MAX_NAME_LENGTH];
-    size_t num;
+    int num;
     PlyProperty_s properties[PLY_MAX_PROPERTIES];
-    size_t properties_size;
+    int properties_size;
 } PlyElement_s;
 
 /** Returns the ply property with the given name, or NULL if not found */
@@ -123,9 +123,9 @@ PlyProperty_s *ply_element_get_property(PlyElement_s *self, const char *property
 typedef struct PlyFile {
     enum ply_format format;
     char comments[PLY_MAX_COMMENTS][PLY_MAX_COMMENT_LENGTH];
-    size_t comments_size;
+    int comments_size;
     PlyElement_s elements[PLY_MAX_ELEMENTS];
-    size_t elements_size;
+    int elements_size;
     ply_byte *parsed_data_on_heap_;
 } PlyFile;
 

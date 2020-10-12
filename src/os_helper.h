@@ -29,7 +29,7 @@ static void open_file_as_string(char **start, char **end, const char *filename) 
         fseek(file, 0, SEEK_SET);
         text = malloc(length + 1);
         if (text) {
-            size_t chars_read = fread(text, 1, length, file);
+            int chars_read = fread(text, 1, length, file);
             if(chars_read != length)
                 fprintf(stderr, "open file warning, didnt read enough characters!\n");
             text[length] = '\0';

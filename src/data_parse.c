@@ -10,25 +10,25 @@
 #include "os_helper.h"
 
 
-static size_t list_size(const ply_byte *data, enum ply_type type) {
+static int list_size(const ply_byte *data, enum ply_type type) {
     if (type == PLY_TYPE_CHAR)
-        return (size_t) (*(int8_t *) data);
+        return (int) (*(int8_t *) data);
     if (type == PLY_TYPE_UCHAR)
-        return (size_t) (*(uint8_t *) data);
+        return (int) (*(uint8_t *) data);
     if (type == PLY_TYPE_SHORT)
-        return (size_t) (*(int16_t *) data);
+        return (int) (*(int16_t *) data);
     if (type == PLY_TYPE_USHORT)
-        return (size_t) (*(uint16_t *) data);
+        return (int) (*(uint16_t *) data);
     if (type == PLY_TYPE_INT)
-        return (size_t) (*(int32_t *) data);
+        return (int) (*(int32_t *) data);
     if (type == PLY_TYPE_UINT)
-        return (size_t) (*(uint32_t *) data);
+        return (int) (*(uint32_t *) data);
     return 0;
 }
 
 
 static void parse_type_binary(ply_byte *restrict out_data,
-                              size_t *out_consumed_bytes,
+                              int *out_consumed_bytes,
                               const ply_byte *restrict actual_ply_data,
                               enum ply_type type,
                               bool is_little_endian) {
@@ -43,7 +43,7 @@ static void parse_type_binary(ply_byte *restrict out_data,
 }
 
 static void parse_type_ascii(ply_byte *restrict out_data,
-                             size_t *out_consumed_bytes,
+                             int *out_consumed_bytes,
                              const ply_byte *restrict actual_ply_data,
                              enum ply_type type) {
     const char *ascii = (const char *) actual_ply_data;
@@ -82,7 +82,7 @@ static void parse_type_ascii(ply_byte *restrict out_data,
 }
 
 static void parse_type(ply_byte *restrict out_data,
-                       size_t *out_consumed_bytes,
+                       int *out_consumed_bytes,
                        const ply_byte *restrict actual_ply_data,
                        enum ply_type type,
                        enum ply_format format) {
@@ -97,30 +97,30 @@ static void parse_type(ply_byte *restrict out_data,
 }
 
 static ply_err parse_property(ply_byte *restrict out_data,
-                              size_t *out_consumed_bytes,
+                              int *out_consumed_bytes,
                               const ply_byte *restrict actual_ply_data,
                               const ply_byte *ply_data_end,
                               PlyProperty_s property,
                               enum ply_format format,
-                              size_t max_list_size) {
+                              int max_list_size) {
 
     if (property.list_type != PLY_TYPE_NONE) {
 
-        size_t consumed_bytes = 0;
+        int consumed_bytes = 0;
         parse_type(out_data, &consumed_bytes, actual_ply_data, property.list_type, format);
         actual_ply_data += consumed_bytes;
         *out_consumed_bytes += consumed_bytes;
 
-        size_t size = list_size(out_data, property.list_type);
+        int size = list_size(out_data, property.list_type);
         if (size > max_list_size) {
             fprintf(stderr,
-                    "[Plyc] warning: parsing list property got a size of %zu that is above max_list_size (%zu)\n",
+                    "[Plyc] warning: parsing list property got a size of %d that is above max_list_size (%d)\n",
                     size, max_list_size);
             size = max_list_size;
         }
         out_data += ply_type_size(property.list_type);
 
-        for (size_t i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             consumed_bytes = 0;
             parse_type(out_data, &consumed_bytes, actual_ply_data, property.type, format);
             out_data += ply_type_size(property.type);
@@ -128,7 +128,7 @@ static ply_err parse_property(ply_byte *restrict out_data,
             *out_consumed_bytes += consumed_bytes;
         }
 
-        size_t remaining = max_list_size - size;
+        int remaining = max_list_size - size;
         memset(out_data, 0, remaining * ply_type_size(property.type));
     } else {
         parse_type(out_data, out_consumed_bytes, actual_ply_data, property.type, format);
@@ -147,15 +147,15 @@ static ply_err parse_property(ply_byte *restrict out_data,
 }
 
 
-static size_t property_size(PlyProperty_s property, size_t max_list_size) {
+static int property_size(PlyProperty_s property, int max_list_size) {
     if (property.list_type != PLY_TYPE_NONE)
         return ply_type_size(property.list_type) + max_list_size * ply_type_size(property.type);
     return ply_type_size(property.type);
 }
 
-static size_t element_size(PlyElement_s element, size_t max_list_size) {
-    size_t size = 0;
-    for (size_t i = 0; i < element.properties_size; i++)
+static int element_size(PlyElement_s element, int max_list_size) {
+    int size = 0;
+    for (int i = 0; i < element.properties_size; i++)
         size += property_size(element.properties[i], max_list_size);
 
     return size * element.num;
@@ -163,18 +163,18 @@ static size_t element_size(PlyElement_s element, size_t max_list_size) {
 
 
 static ply_err parse_element(ply_byte *restrict out_data,
-                             size_t *out_consumed_bytes,
+                             int *out_consumed_bytes,
                              const ply_byte *restrict actual_ply_data,
                              const ply_byte *ply_data_end,
                              PlyElement_s element,
                              enum ply_format format,
-                             size_t max_list_size) {
+                             int max_list_size) {
     if (element.properties_size > PLY_MAX_PROPERTIES)
         return "Property limit exceeded";
 
-    for (size_t i = 0; i < element.num; i++) {
-        for (size_t p = 0; p < element.properties_size; p++) {
-            size_t consumed_bytes = 0;
+    for (int i = 0; i < element.num; i++) {
+        for (int p = 0; p < element.properties_size; p++) {
+            int consumed_bytes = 0;
             ply_err err = parse_property(out_data, &consumed_bytes,
                                          actual_ply_data, ply_data_end, element.properties[p],
                                          format, max_list_size);
@@ -190,15 +190,15 @@ static ply_err parse_element(ply_byte *restrict out_data,
 
 
 ply_err ply_data_parse(PlyFile *in_out_file,
-                       const ply_byte *restrict ply_data, size_t ply_data_size,
-                       size_t max_list_size) {
+                       const ply_byte *restrict ply_data, int ply_data_size,
+                       int max_list_size) {
     ply_err err = PLY_Success;
 
     setlocale(LC_ALL, "C");
 
     const ply_byte *ply_data_end = ply_data + ply_data_size;
 
-    size_t buffer_size = 0;
+    int buffer_size = 0;
     for (int e = 0; e < in_out_file->elements_size; e++)
         buffer_size += element_size(in_out_file->elements[e], max_list_size);
 
@@ -211,7 +211,7 @@ ply_err ply_data_parse(PlyFile *in_out_file,
     for (int e = 0; e < in_out_file->elements_size; e++) {
         PlyElement_s *element = &in_out_file->elements[e];
 
-        size_t consumed_bytes = 0;
+        int consumed_bytes = 0;
         err = parse_element(actual_data, &consumed_bytes,
                                     ply_data, ply_data_end, *element,
                                     in_out_file->format, max_list_size);

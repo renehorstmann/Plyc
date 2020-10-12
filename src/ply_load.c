@@ -17,7 +17,7 @@ ply_err ply_load_file(PlyFile *out_file, const char *filename, int max_list_size
     return res;
 }
 
-ply_err ply_parse_memory(PlyFile *out_file, const char *ply_file_text, size_t ply_file_text_size, int max_list_size) {
+ply_err ply_parse_memory(PlyFile *out_file, const char *ply_file_text, int ply_file_text_size, int max_list_size) {
     ply_err err;
 
     *out_file = (PlyFile) {0};

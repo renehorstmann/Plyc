@@ -64,7 +64,7 @@ int main() {
         ret = ply_header_write_to_heap(&written_header, header);
         if (ret)
             return err("header test 1 failed to write", ret);
-        size_t len = strlen(header_text);
+        int len = strlen(header_text);
         if (len != strlen(written_header) - 1) // without newline
             return err("header test 1 failed to write, different result size", "");
         int s = strncmp(header_text, written_header, len);
@@ -149,7 +149,7 @@ int main() {
         ret = ply_header_write_to_heap(&written_header, header);
         if (ret)
             return err("header test 2 failed to write", ret);
-        size_t len = strlen(header_text);
+        int len = strlen(header_text);
         if (len != strlen(written_header) - 1) // without newline
             return err("header test 2 failed to write, different result size", "");
         int s = strncmp(header_text, written_header, len);
@@ -224,7 +224,7 @@ int main() {
         ret = ply_header_write_to_heap(&written_header, header);
         if (ret)
             return err("header test 3 failed to write", ret);
-        size_t len = strlen(header_text);
+        int len = strlen(header_text);
         if (len != strlen(written_header) - 1) // without newline
             return err("header test 3 failed to write, different result size", "");
         int s = strncmp(header_text, written_header, len);

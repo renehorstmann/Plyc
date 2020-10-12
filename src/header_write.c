@@ -20,7 +20,7 @@ static void push_element(CharArray *array, PlyElement_s *element) {
     push_string(array, element->name);
     char_array_push(array, ' ');
     char num_str[12];   // max length for 32bit
-    sprintf(num_str, "%zu", element->num);
+    sprintf(num_str, "%d", element->num);
     push_string(array, num_str);
     char_array_push(array, '\n');
 }
@@ -81,20 +81,20 @@ ply_err ply_header_write_to_heap(char **out_header_on_heap, PlyFile header) {
 
 
     if (header.comments_size > PLY_MAX_COMMENT_LENGTH) PlySetErrGoto(err, "Comments error, too many comments", CLEAN_UP)
-    for (size_t i = 0; i < header.comments_size; i++) {
+    for (int i = 0; i < header.comments_size; i++) {
         push_string(&array, "comment ");
         push_string(&array, header.comments[i]);
         char_array_push(&array, '\n');
     }
 
     if (header.elements_size > PLY_MAX_ELEMENTS) PlySetErrGoto(err, "Element error, too many elements", CLEAN_UP)
-    for (size_t i = 0; i < header.elements_size; i++) {
+    for (int i = 0; i < header.elements_size; i++) {
         PlyElement_s *element = &header.elements[i];
         if (element->properties_size > PLY_MAX_PROPERTIES) {
             PlySetErrGoto(err, "Property error, too many properties", CLEAN_UP)
         }
 
-        for (size_t j = 0; j < i; j++) {
+        for (int j = 0; j < i; j++) {
             if (strcmp(element->name, header.elements[j].name) == 0) {
                 PlySetErrGoto(err, "Element name duplicate", CLEAN_UP)
             }
@@ -104,10 +104,10 @@ ply_err ply_header_write_to_heap(char **out_header_on_heap, PlyFile header) {
 
         push_element(&array, element);
 
-        for (size_t p = 0; p < element->properties_size; p++) {
+        for (int p = 0; p < element->properties_size; p++) {
             PlyProperty_s *property = &element->properties[p];
 
-            for (size_t j = 0; j < p; j++) {
+            for (int j = 0; j < p; j++) {
                 if (strcmp(property->name, header.elements[i].properties[j].name) == 0) {
                     PlySetErrGoto(err, "Property name duplicate", CLEAN_UP)
                 }

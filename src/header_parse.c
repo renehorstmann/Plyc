@@ -145,7 +145,7 @@ ply_err ply_header_parse(PlyFile *out_header, const char *header_text) {
                 continue;
             line.begin += strlen("comment");
             line = sv_lstrip(line, ' ');
-            size_t len = sv_length(line);
+            int len = sv_length(line);
             if (len == 0 || len >= PLY_MAX_COMMENT_LENGTH - 1)
                 continue;
             sv_cpy(out_header->comments[out_header->comments_size++], line);
