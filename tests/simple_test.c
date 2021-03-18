@@ -233,5 +233,16 @@ int main() {
         ply_simple_kill(&simple);
     }
 
+
+    // not available
+    {
+        PlySimple simple;
+        ret = ply_simple_load(&simple, "not_available.ply");
+        if(!ret)
+            return err("simple_load 5 failed, should get an error", NULL);
+        if(strcmp(ret, "File not found")!=0)
+            return err("simple_load 5 failed, wrong err: ", ret);
+    }
+
 }
 

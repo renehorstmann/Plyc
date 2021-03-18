@@ -12,6 +12,8 @@
 ply_err ply_load_file(PlyFile *out_file, const char *filename, int max_list_size) {
     char *memory_begin, *memory_end;
     open_file_as_string(&memory_begin, &memory_end, filename);
+    if(!memory_begin)
+        return "File not found";
     ply_err res = ply_parse_memory(out_file, memory_begin, memory_end-memory_begin, max_list_size);
     free(memory_begin);
     return res;
