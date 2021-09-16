@@ -1,6 +1,12 @@
 # Plyc
 A simple ANSI C library to load and save a .ply file with any desired data.
 
+
+## Deprecated
+Plyc is now deprecated.
+Have a look at [pbase](https://github.com/renehorstmann/pbase) instead.
+
+
 ## Getting Started
 Copy the library to your system, compile and install it (tested on GCC 7.4.0).
 If cloned:
